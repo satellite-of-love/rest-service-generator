@@ -1,0 +1,16 @@
+---
+kind: "operation"
+client: "atomist-bot"
+generator:
+  name: "NewRestService"
+  group: "satellite-of-love"
+  artifact: "sol-spring-rest-service"
+  version: "1.0.0"
+  origin:
+    repo: "git@github.com:satellite-of-love/survey-options.git"
+    branch: "master"
+    sha: "6cac966"
+  parameters:
+    - "project_name": "rest-service-generator"
+    - "inputParameter": "input"
+
