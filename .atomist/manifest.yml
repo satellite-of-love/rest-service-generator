@@ -1,4 +1,0 @@
-group: "satellite-of-love"
-artifact: "rest-service-generator"
-version: "1.0.0"
-requires: "[0.22.0,1.0.0)"
