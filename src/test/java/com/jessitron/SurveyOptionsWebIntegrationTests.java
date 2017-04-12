@@ -1,6 +1,6 @@
 package com.jessitron;
 
-import com.jessitron.survey.SurveyOptions;
+import com.jessitron.restServiceGenerator.SurveyOptions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;

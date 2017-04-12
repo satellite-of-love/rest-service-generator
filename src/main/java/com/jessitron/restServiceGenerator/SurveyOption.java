@@ -1,4 +1,4 @@
-package com.jessitron.survey;
+package com.jessitron.restServiceGenerator;
 
 public class SurveyOption {
 

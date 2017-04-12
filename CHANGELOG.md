@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/com.jessitron/survey-options/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/satellite-of-love/rest-service-generator/compare/1.0.0...HEAD
 
 ## [0.1.0] - 2016-12-02
 
 Initial release
 
-[0.1.0]: https://github.com/com.jessitron/survey-options/tree/0.1.0
+[1.0.0]: https://github.com/satellite-of-love/rest-service-generator/tree/1.0.0
 
 Added
 
