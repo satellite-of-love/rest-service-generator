@@ -26,42 +26,13 @@ import { cleanReadMe, cleanChangeLog, removeUnnecessaryFiles, updatePom, movePac
  * Atomist Rug generator for creating a new Spring Boot REST service
  * project.
  */
-@Generator("NewSpringBootRestService", "creates a new Spring Boot REST service project")
-@Tags("java", "spring", "spring-boot", "spring-rest")
-export class NewSpringBootRestService implements PopulateProject {
+@Generator("NewRestService", "creates a new Spring Boot REST service project")
+@Tags("java", "spring", "satellite-of-love")
+export class NewRestService implements PopulateProject {
 
-    @Parameter({
-        displayName: "Maven Artifact ID",
-        description: "Maven artifact identifier, i.e., the name of the jar without the version, it is often the same as the project name",
-        pattern: "^[a-z][-a-z0-9_]*$", // Ideally this should be looking up artifactId as a common pattern
-        validInput: "a valid Maven artifact ID, which starts with a lower-case letter and contains only alphanumeric, -, and _ characters",
-        minLength: 1,
-        maxLength: 50,
-        required: false
-    })
-    artifactId: string = "myartifact";
+    groupId: string = "satellite-of-love";
 
-    @Parameter({
-        displayName: "Maven Group ID",
-        description: "Maven group identifier, often used to provide a namespace for your project, e.g., com.pany.team",
-        pattern: Pattern.group_id,
-        validInput: "a valid Maven group ID, which starts with a letter, -, or _ and contains only alphanumeric, -, and _ characters and may having leading period separated identifiers starting with letters or underscores and containing only alphanumeric and _ characters.",
-        minLength: 1,
-        maxLength: 50,
-        required: false
-    })
-    groupId: string = "mygroup";
-
-    @Parameter({
-        displayName: "Version",
-        description: "initial version of the project, e.g., 1.2.3-SNAPSHOT",
-        pattern: Pattern.semantic_version,
-        validInput: "a valid semantic version, http://semver.org",
-        minLength: 1,
-        maxLength: 50,
-        required: false
-    })
-    version: string = "0.1.0-SNAPSHOT";
+    version: string = "1.0.0-SNAPSHOT";
 
     @Parameter({
         displayName: "Project Description",
@@ -72,37 +43,29 @@ export class NewSpringBootRestService implements PopulateProject {
         maxLength: 100,
         required: false
     })
-    description: string = "My new project"
+    description: string = "Mystery Project"
 
-    @Parameter({
-        displayName: "Root Package",
-        description: "root package for your generated source, often this will be namespaced under the group ID",
-        pattern: Pattern.java_package,
-        validInput: "a valid Java package name, which consists of period-separated identifiers which have only alphanumeric characters, $ and _ and do not start with a number",
-        minLength: 1,
-        maxLength: 50,
-        required: false
-    })
-    rootPackage: string = "com.myorg";
-
-    @Parameter({
-        displayName: "Class Name",
-        description: "name for the service class",
-        pattern: Pattern.java_class,
-        validInput: "a valid Java class name, which contains only alphanumeric characters, $ and _ and does not start with a number",
-        minLength: 1,
-        maxLength: 50,
-        required: false
-    })
-    serviceClassName: string = "Test";
+    rootPackage: string = "com.jessitron";
 
     populate(project: Project) {
+        let artifactId = project.name;
+        let serviceClassName = this.capitalise(this.camelCase(project.name));
         cleanReadMe(project, this.description, this.groupId);
         cleanChangeLog(project, this.groupId);
         removeUnnecessaryFiles(project);
-        updatePom(project, this.artifactId, this.groupId, this.version, this.description);
+        updatePom(project, artifactId, this.groupId, this.version, this.description);
         movePackage(project, "com.atomist.springrest", this.rootPackage);
-        renameClass(project, "SpringRest", this.serviceClassName);
+        renameClass(project, "SpringRest", serviceClassName);
+    }
+
+    private camelCase(str: string) {
+        return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
+            return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+        }).replace(/[\s-_]+/g, '');
+    }
+
+    private capitalise(str: string) {
+        return (str.substr(0, 1) + str.substr(1));
     }
 }
 
