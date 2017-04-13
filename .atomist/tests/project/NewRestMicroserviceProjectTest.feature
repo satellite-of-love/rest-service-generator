@@ -13,24 +13,18 @@
 # limitations under the License.
 
 
-Feature: NewSpringBootRestService generator should create Spring Boot REST service projects
-  The Atomist NewSpringBootRestService Rug generator
+Feature: NewRestService generator should create Spring Boot REST service projects
+  The Atomist NewRestService Rug generator
   should successfully create Spring Boot REST service projects
   according to its input parameters.
 
 
-  Scenario: NewSpringBootRestService should create a new project given all valid input
+  Scenario: NewRestService should create a new project given all valid input
     Given the archive root
-    When NewSpringBootRestService is provided all parameters
+    When NewRestService is provided all parameters
     Then parameters were valid
-    Then the class source file exists
-    Then the class source file contains the class name
-    Then the class source file contains the package name
     Then the class source file should not contain the original class name
     Then the class source file should not contain the original package name
-    Then the class test file exists
-    Then the class test file contains the class name
-    Then the class test file contains the package name
     Then the class test file should not contain the original class name
     Then the class test file should not contain the original package name
     Then the POM file contains the artifact ID
@@ -51,12 +45,10 @@ Feature: NewSpringBootRestService generator should create Spring Boot REST servi
     Then the Travis CI configuration should not exist
 
 
-  Scenario: NewSpringBootRestService without description should create a new project
+  Scenario: NewRestService without description should create a new project
     Given the archive root
-    When NewSpringBootRestService is provided all parameters but description
+    When NewRestService is provided all parameters but description
     Then parameters were valid
-    Then the class source file exists
-    Then the class test file exists
     Then the POM file contains the artifact ID
     Then the POM file contains the version
     Then the README contains the project name
@@ -68,7 +60,3 @@ Feature: NewSpringBootRestService generator should create Spring Boot REST servi
     Then the code of conduct file should not exist
 
 
-  Scenario: NewSpringBootRestService should fail when given an invalid parameter
-    Given the archive root
-    When NewSpringBootRestService for NewSpringBootRestService should fail when given an invalid parameter
-    Then parameters were invalid

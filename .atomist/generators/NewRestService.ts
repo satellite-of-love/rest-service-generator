@@ -27,7 +27,7 @@ import { cleanReadMe, cleanChangeLog, removeUnnecessaryFiles, updatePom, movePac
  * project.
  */
 @Generator("NewRestService", "creates a new Spring Boot REST service project")
-@Tags("java", "spring", "satellite-of-love")
+@Tags("java", "satellite-of-love")
 export class NewRestService implements PopulateProject {
 
     groupId: string = "satellite-of-love";
@@ -65,8 +65,8 @@ export class NewRestService implements PopulateProject {
     }
 
     private capitalise(str: string) {
-        return (str.substr(0, 1) + str.substr(1));
+        return (str.substr(0, 1).toUpperCase() + str.substr(1));
     }
 }
 
-export const newSpringBootRestService = new NewSpringBootRestService();
+export const newRestService = new NewRestService();

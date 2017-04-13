@@ -1,5 +1,5 @@
-group: atomist-rugs
-artifact: spring-boot-rest-service
+group: satellite-of-love
+artifact: rest-service-generator
 version: "0.10.0"
 requires: "(0.24.0,0.26.0)"
 dependencies:

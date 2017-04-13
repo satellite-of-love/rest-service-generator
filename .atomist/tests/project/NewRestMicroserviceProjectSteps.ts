@@ -18,21 +18,21 @@ import { Project } from "@atomist/rug/model/Project";
 import { Given, When, Then, ProjectScenarioWorld } from "@atomist/rug/test/project/Core";
 
 const projectName = "MyService";
-const artifactId = "foo";
-const rootPackage = "com.foo.bar";
-const version = "0.0.1";
-const serviceClassName = "MyTest";
+const artifactId = "MyService";
+const rootPackage = "com.jessitron";
+const version = "1.0.0-SNAPSHOT";
+const serviceClassName = "MyService";
 const propsFile = "src/main/resources/application.properties";
-const groupId = "somegroup";
+const groupId = "satellite-of-love";
 const pomPath = "pom.xml";
 const readmePath = "README.md";
 const description = "And now for something completely different";
-const srcPath = "src/main/java/com/foo/bar/" + serviceClassName + "Application.java";
-const testPath = "src/test/java/com/foo/bar/" + serviceClassName + "ApplicationTests.java";
+const srcPath = "src/main/java/com/jessitron/" + serviceClassName + "Application.java";
+const testPath = "src/test/java/com/jessitron/" + serviceClassName + "ApplicationTests.java";
 
-When("NewSpringBootRestService is provided all parameters", (p, world) => {
+When("NewRestService is provided all parameters", (p, world) => {
     let psworld = world as ProjectScenarioWorld;
-    let generator = psworld.generator("NewSpringBootRestService");
+    let generator = psworld.generator("NewRestService");
     psworld.generateWith(generator, projectName, {
         artifactId: artifactId,
         rootPackage: rootPackage,
@@ -151,9 +151,9 @@ Then("the Travis CI configuration should not exist", (p, world) => {
     return !p.fileExists(".travis.yml");
 });
 
-When("NewSpringBootRestService is provided all parameters but description", (p, world) => {
+When("NewRestService is provided all parameters but description", (p, world) => {
     let psworld = world as ProjectScenarioWorld;
-    let generator = psworld.generator("NewSpringBootRestService");
+    let generator = psworld.generator("NewRestService");
     psworld.generateWith(generator, projectName, {
         artifactId: artifactId,
         rootPackage: rootPackage,
@@ -163,9 +163,9 @@ When("NewSpringBootRestService is provided all parameters but description", (p, 
     });
 });
 
-When("NewSpringBootRestService for NewSpringBootRestService should fail when given an invalid parameter", (p, world) => {
+When("RestService for NewRestService should fail when given an invalid parameter", (p, world) => {
     let psworld = world as ProjectScenarioWorld;
-    let generator = psworld.generator("NewSpringBootRestService");
+    let generator = psworld.generator("NewRestService");
     let badVersion = "not.valid.version";
     psworld.generateWith(generator, projectName, {
         artifactId: artifactId,
