@@ -26,7 +26,7 @@ import { cleanReadMe, cleanChangeLog, removeUnnecessaryFiles, updatePom, movePac
  * Atomist Rug generator for creating a new Spring Boot REST service
  * project.
  */
-@Generator("NewRestService", "creates a new Spring Boot REST service project")
+@Generator("NewRestService", "creates a new satellite-of-love REST service")
 @Tags("java", "satellite-of-love")
 export class NewRestService implements PopulateProject {
 
