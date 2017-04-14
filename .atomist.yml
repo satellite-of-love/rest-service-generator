@@ -138,3 +138,20 @@ editor:
   parameters:
     - "component": "minor"
 
+---
+kind: "operation"
+client: "rug-cli 0.30.2"
+editor:
+  name: "AddLocalEditor"
+  group: "atomist-rugs"
+  artifact: "rug-editors"
+  version: "0.25.0"
+  origin:
+    repo: "git@github.com:atomist-rugs/rug-editors.git"
+    branch: "master"
+    sha: "7557a1b"
+  parameters:
+    - "editorName": "AddRestEndpoint"
+    - "description": "add an endpoint to return a POJO"
+    - "groupId": "satellite-of-love"
+
