@@ -29,9 +29,9 @@ export class BumpVersion implements EditProject {
             throw "Unable to parse current version. I only increment a nice simple 1.2.3 format. Content " + manifest.content
         }
 
-        let major = versionMatch[1];
-        let minor = versionMatch[2];
-        let patch = versionMatch[3];
+        let major = parseInt(versionMatch[1]);
+        let minor = parseInt(versionMatch[2]);
+        let patch = parseInt(versionMatch[3]);
         if (this.component == "major") {
             major = major + 1;
         } else if (this.component == "minor") {
@@ -43,6 +43,7 @@ export class BumpVersion implements EditProject {
         }
 
         let newContent = manifest.content.replace(versionRegex, `version: "${major}.${minor}.${patch}"`)
+        manifest.setContent(newContent);
     }
 }
 
