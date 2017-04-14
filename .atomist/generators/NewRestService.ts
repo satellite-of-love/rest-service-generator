@@ -56,6 +56,7 @@ export class NewRestService implements PopulateProject {
         updatePom(project, artifactId, this.groupId, this.version, this.description);
         movePackage(project, "com.atomist.springrest", this.rootPackage);
         renameClass(project, "SpringRest", serviceClassName);
+        project.deleteFile(".travis.yml")   // remove this which has encryption that only works in this repo
     }
 
     private camelCase(str: string) {
