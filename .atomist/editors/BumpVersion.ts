@@ -11,17 +11,38 @@ import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
 export class BumpVersion implements EditProject {
 
     @Parameter({
-        displayName: "Some Input",
-        description: "example of how to specify a parameter using decorators",
-        pattern: Pattern.any,
-        validInput: "a description of the valid input",
+        displayName: "version component",
+        description: "how bumped is it? major/minor/patch",
+        pattern: Pattern.any, // TODO: regex
+        validInput: "major | minor | patch",
         minLength: 1,
-        maxLength: 100
+        maxLength: 5,
+        required: false
     })
-    inputParameter: string;
+    component: string = "patch";
 
     edit(project: Project) {
-        project.addFile("hello.txt", "Hello, World!\n" + this.inputParameter + "\n");
+        let versionRegex = /version: "?(\d+)\.(\d+)\.(\d+)"?/;
+        let manifest = project.findFile(".atomist/manifest.yml");
+        let versionMatch = versionRegex.exec(manifest.content);
+        if (!versionMatch) {
+            throw "Unable to parse current version. I only increment a nice simple 1.2.3 format. Content " + manifest.content
+        }
+
+        let major = versionMatch[1];
+        let minor = versionMatch[2];
+        let patch = versionMatch[3];
+        if (this.component == "major") {
+            major = major + 1;
+        } else if (this.component == "minor") {
+            minor = minor + 1;
+        } else if (this.component == "patch") {
+            patch = patch + 1;
+        } else {
+            throw `Unknown version component '${this.component}'. Should be major|minor|patch`;
+        }
+
+        let newContent = manifest.content.replace(versionRegex, `version: "${major}.${minor}.${patch}"`)
     }
 }
 
