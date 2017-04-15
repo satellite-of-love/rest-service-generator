@@ -18,16 +18,6 @@ export class AddRestEndpoint implements EditProject {
     returnedClass: string;
 
     @Parameter({
-        displayName: "request parameter name",
-        description: "name of a request parameter, blank for none",
-        pattern: Pattern.java_identifier,
-        validInput: "Java identifier",
-        minLength: 1,
-        maxLength: 100
-    })
-    requestParam: string = "";
-
-    @Parameter({
         displayName: "pojo field name",
         description: "name of a field in your pojo, blank for none (or not a new pojo)",
         pattern: Pattern.java_identifier,
@@ -54,10 +44,11 @@ export class AddRestEndpoint implements EditProject {
         let lowerReturnedClass = this.uncapitalise(this.returnedClass);
         let path = lowerReturnedClass;
         let returnedClass = this.returnedClass;
-        let requestParam = this.requestParam;
+        let requestParam = this.fieldName;
+        let requestParamType = this.fieldType
 
         this.addPojo(project, sourceLocation, returnedClass, packageName, this.fieldName, this.fieldType);
-        this.addController(project, sourceLocation, returnedClass, packageName, path, requestParam, lowerReturnedClass);
+        this.addController(project, sourceLocation, returnedClass, packageName, path, requestParam, requestParamType, lowerReturnedClass);
         this.addIntegrationTest(project, returnedClass, packageName, testLocation, requestParam, path, lowerReturnedClass, this.fieldName);
 
     }
@@ -119,10 +110,10 @@ public class ${returnedClass} {
     private addIntegrationTest(project: Project, returnedClass: string, packageName: string,
         testLocation: string, requestParam: string, path: string, lowerReturnedClass: string,
         fieldName: string) {
-        let fileName = testLocation + `/${returnedClass}WebIntegrationTests.java`
+        let fileName = testLocation + `/${returnedClass}WebIntegrationTests.java`;
         let params = "";
-        if (this.requestParam != "") {
-            params = `? ${requestParam} = hello`
+        if (requestParam != "") {
+            params = `?${requestParam}=hello`;
         }
         let method =
             `
@@ -131,7 +122,7 @@ public class ${returnedClass} {
         ${returnedClass} result = restTemplate.getForObject(BASE_PATH + "/${path}${params}", ${returnedClass}.class);
         assertEquals("hello", result.get${this.capitalise(fieldName)}());
     }
-    `
+    `;
         if (project.fileExists(fileName)) {
             let endOfClassDeclaration = /^}/;
             let file = project.findFile(fileName);
@@ -158,7 +149,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ${applicationClass}Application.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class ${returnedClass} WebIntegrationTests {
+public class ${returnedClass}WebIntegrationTests {
 
     private static final int PORT = 8080;
 
@@ -175,21 +166,23 @@ public class ${returnedClass} WebIntegrationTests {
     }
 
     private addController(project: Project, sourceLocation: string, returnedClass: string,
-        packageName: string, path: string, requestParam: string, lowerReturnedClass: string) {
+        packageName: string, path: string, requestParam: string, requestParamType: string, lowerReturnedClass: string) {
         let controllerFile = sourceLocation + `/${returnedClass}Controller.java`;
         let params = "";
-        if (this.requestParam != "") {
-            params = `@RequestParam(value = "${requestParam}") String ${requestParam} `;
+        let pojoField = "";
+        if (requestParam != "") {
+            params = `@RequestParam(value = "${requestParam}") ${requestParamType} ${requestParam}`;
+            pojoField = requestParam;
         }
         let controllerMethod =
             `
     @RequestMapping(path = "/${path}")
-    public ${returnedClass} ${lowerReturnedClass} (${params}) {
-        return new ${returnedClass} ();
+    public ${returnedClass} ${lowerReturnedClass}(${params}) {
+        return new ${returnedClass}(${pojoField});
     }
 `;
         if (project.fileExists(controllerFile)) {
-            let beginningOfClassDeclaration = `${returnedClass} Controller {`;
+            let beginningOfClassDeclaration = `${returnedClass}Controller {`;
             project.replace(beginningOfClassDeclaration, beginningOfClassDeclaration + "\n" + controllerMethod);
         } else {
             let controllerContent =
@@ -200,7 +193,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ${returnedClass} Controller {
+public class ${returnedClass}Controller {
 ${controllerMethod}
 }
     ` // syntax highlighting is confused so `
