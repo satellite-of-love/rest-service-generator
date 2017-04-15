@@ -7,7 +7,7 @@ import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
  * Sample TypeScript editor used by AddBumpVersion.
  */
 @Editor("BumpVersion", "bump the version of this rug archive")
-@Tags("documentation")
+@Tags("rug", "version")
 export class BumpVersion implements EditProject {
 
     @Parameter({

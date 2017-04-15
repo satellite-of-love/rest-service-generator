@@ -4,7 +4,7 @@ import { Pattern } from '@atomist/rug/operations/RugOperation';
 import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
 
 @Editor("AddRestEndpoint", "add an endpoint to return a POJO")
-@Tags("spring", "satellite-of=love")
+@Tags("spring", "satellite-of-love", "jess")
 export class AddRestEndpoint implements EditProject {
 
     @Parameter({
