@@ -187,3 +187,18 @@ editor:
     - "description": "run an editor to add a REST endpoint to this project"
     - "intent": "add endpoint"
 
+---
+kind: "operation"
+client: "rug-cli 0.30.2"
+editor:
+  name: "BumpVersion"
+  group: "satellite-of-love"
+  artifact: "rest-service-generator"
+  version: "0.11.1"
+  origin:
+    repo: "git@github.com:satellite-of-love/rest-service-generator"
+    branch: "master"
+    sha: "346aa48"
+  parameters:
+    - "component": "patch"
+
