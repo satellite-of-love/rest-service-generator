@@ -1,4 +1,4 @@
-FROM sforzando-docker-dockerv2-local.artifactoryonline.com/newrelic:0.5.0
+FROM java:8
 
 COPY org /opt/build/org
 COPY BOOT-INF/lib /opt/build/BOOT-INF/lib
@@ -9,4 +9,4 @@ WORKDIR /opt/build/
 
 EXPOSE 8080
 
-CMD ["java", "-Xmx2g", "org.springframework.boot.loader.JarLauncher"]
+CMD ["java", "-Xmx200m", "org.springframework.boot.loader.JarLauncher"]
