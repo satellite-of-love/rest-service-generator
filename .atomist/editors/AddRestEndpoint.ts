@@ -79,6 +79,11 @@ export class AddRestEndpoint implements EditProject {
     private addPojo(project: Project, sourceLocation: string, returnedClass: string, packageName: string,
         fieldName: string, fieldType: string) {
         let pojoFile = sourceLocation + `/${returnedClass}.java`
+        if (project.fileExists(pojoFile)) {
+            console.log(`${pojoFile} already exists, skipping`);
+            return;
+        }
+
         let fieldMethods = "";
         if (fieldName != "" && fieldType != "") {
             fieldMethods = `
@@ -88,28 +93,27 @@ export class AddRestEndpoint implements EditProject {
         this.${fieldName} = ${fieldName};
     }
 
-    public ${fieldType} ${this.capitalise(fieldName)}() {
+    public ${fieldType} get${this.capitalise(fieldName)} () {
         return ${fieldName};
     }
 
-    public void set${this.capitalise(fieldName)}(${fieldType} ${fieldName}) {
+    public void set${this.capitalise(fieldName)} (${fieldType} ${fieldName}) {
         this.${fieldName} = ${fieldName};
     }
 `
         }
-        if (!project.fileExists(pojoFile)) {
-            let pojoContents =
-                `package ${packageName};
+
+        let pojoContents =
+            `package ${packageName};
 
 public class ${returnedClass} {
-${fieldMethods}
-
+    ${fieldMethods}
     // don't forget the default constructor. Jackson likes it
-    public ${returnedClass}() {}
+    public ${returnedClass} () {}
 }
 `
-            project.addFile(pojoFile, pojoContents);
-        }
+        project.addFile(pojoFile, pojoContents);
+
     }
 
     private addIntegrationTest(project: Project, returnedClass: string, packageName: string,
@@ -118,15 +122,16 @@ ${fieldMethods}
         let fileName = testLocation + `/${returnedClass}WebIntegrationTests.java`
         let params = "";
         if (this.requestParam != "") {
-            params = `?${requestParam}=hello`
+            params = `? ${requestParam} = hello`
         }
         let method =
             `
     @Test
     public void ${lowerReturnedClass}Test() {
         ${returnedClass} result = restTemplate.getForObject(BASE_PATH + "/${path}${params}", ${returnedClass}.class);
-         assertEquals("hello", result.get${this.capitalise(fieldName)}());
-    }`
+        assertEquals("hello", result.get${this.capitalise(fieldName)}());
+    }
+    `
         if (project.fileExists(fileName)) {
             let endOfClassDeclaration = /^}/;
             let file = project.findFile(fileName);
@@ -153,7 +158,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ${applicationClass}Application.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class ${returnedClass}WebIntegrationTests {
+public class ${returnedClass} WebIntegrationTests {
 
     private static final int PORT = 8080;
 
@@ -162,7 +167,7 @@ public class ${returnedClass}WebIntegrationTests {
     private RestTemplate restTemplate = new RestTemplate();
 
     ${method}
- }
+}
 `
             project.addFile(fileName, fileContent);
         }
@@ -171,19 +176,20 @@ public class ${returnedClass}WebIntegrationTests {
 
     private addController(project: Project, sourceLocation: string, returnedClass: string,
         packageName: string, path: string, requestParam: string, lowerReturnedClass: string) {
-        let controllerFile = sourceLocation + `/${returnedClass}Controller.java`
+        let controllerFile = sourceLocation + `/${returnedClass}Controller.java`;
         let params = "";
         if (this.requestParam != "") {
-            params = `@RequestParam(value = "${requestParam}") String ${requestParam}`
+            params = `@RequestParam(value = "${requestParam}") String ${requestParam} `;
         }
         let controllerMethod =
             `
     @RequestMapping(path = "/${path}")
-    public ${returnedClass} ${lowerReturnedClass}(${params}) {
-        return new ${returnedClass}();
-    }`
+    public ${returnedClass} ${lowerReturnedClass} (${params}) {
+        return new ${returnedClass} ();
+    }
+`;
         if (project.fileExists(controllerFile)) {
-            let beginningOfClassDeclaration = `${returnedClass}Controller {`;
+            let beginningOfClassDeclaration = `${returnedClass} Controller {`;
             project.replace(beginningOfClassDeclaration, beginningOfClassDeclaration + "\n" + controllerMethod);
         } else {
             let controllerContent =
@@ -194,10 +200,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ${returnedClass}Controller {
+public class ${returnedClass} Controller {
 ${controllerMethod}
 }
-` // syntax highlighting is confused so `
+    ` // syntax highlighting is confused so `
             project.addFile(controllerFile, controllerContent);
         }
     }
