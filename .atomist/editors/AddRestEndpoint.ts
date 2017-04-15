@@ -11,7 +11,7 @@ export class AddRestEndpoint implements EditProject {
         displayName: "Java return type",
         description: "type the endpoint will return",
         pattern: Pattern.java_class,
-        validInput: "java class name like ThunderCougarFalconBird",
+        validInput: "Java class name like ThunderCougarFalconBird",
         minLength: 1,
         maxLength: 100
     })
@@ -21,11 +21,31 @@ export class AddRestEndpoint implements EditProject {
         displayName: "request parameter name",
         description: "name of a request parameter, blank for none",
         pattern: Pattern.java_identifier,
-        validInput: "java identifier",
+        validInput: "Java identifier",
         minLength: 1,
         maxLength: 100
     })
     requestParam: string = "";
+
+    @Parameter({
+        displayName: "pojo field name",
+        description: "name of a field in your pojo, blank for none (or not a new pojo)",
+        pattern: Pattern.java_identifier,
+        validInput: "Java identifier",
+        minLength: 1,
+        maxLength: 100
+    })
+    fieldName: string = "";
+
+    @Parameter({
+        displayName: "pojo field type",
+        description: "type of that field in your pojo, blank for none (or not a new pojo)",
+        pattern: Pattern.any,
+        validInput: "Java type",
+        minLength: 1,
+        maxLength: 100
+    })
+    fieldType: string = "";
 
     edit(project: Project) {
         let packageName = `com.jessitron` // todo: figure this out
@@ -36,14 +56,18 @@ export class AddRestEndpoint implements EditProject {
         let returnedClass = this.returnedClass;
         let requestParam = this.requestParam;
 
-        this.addPojo(project, sourceLocation, returnedClass, packageName);
+        this.addPojo(project, sourceLocation, returnedClass, packageName, this.fieldName, this.fieldType);
         this.addController(project, sourceLocation, returnedClass, packageName, path, requestParam, lowerReturnedClass);
-        this.addIntegrationTest(project, returnedClass, packageName, testLocation, requestParam, path, lowerReturnedClass);
+        this.addIntegrationTest(project, returnedClass, packageName, testLocation, requestParam, path, lowerReturnedClass, this.fieldName);
 
     }
 
     private uncapitalise(str) {
         return str.substr(0, 1).toLowerCase() + str.substr(1);
+    }
+
+    private capitalise(str) {
+        return str.substr(0, 1).toUpperCase() + str.substr(1);
     }
 
     private camelCase(str) {
@@ -52,14 +76,33 @@ export class AddRestEndpoint implements EditProject {
         }).replace(/\s+/g, '');
     }
 
-    private addPojo(project: Project, sourceLocation: string, returnedClass: string, packageName: string) {
+    private addPojo(project: Project, sourceLocation: string, returnedClass: string, packageName: string,
+        fieldName: string, fieldType: string) {
         let pojoFile = sourceLocation + `/${returnedClass}.java`
+        let fieldMethods = "";
+        if (fieldName != "" && fieldType != "") {
+            fieldMethods = `
+    private ${fieldType} ${fieldName};
+
+    public ${returnedClass}(${fieldType} ${fieldName}) {
+        this.${fieldName} = ${fieldName};
+    }
+
+    public ${fieldType} ${this.capitalise(fieldName)}() {
+        return ${fieldName};
+    }
+
+    public void set${this.capitalise(fieldName)}(${fieldType} ${fieldName}) {
+        this.${fieldName} = ${fieldName};
+    }
+`
+        }
         if (!project.fileExists(pojoFile)) {
             let pojoContents =
                 `package ${packageName};
 
 public class ${returnedClass} {
-    // Add POJO properties here
+${fieldMethods}
 
     // don't forget the default constructor. Jackson likes it
     public ${returnedClass}() {}
@@ -70,7 +113,8 @@ public class ${returnedClass} {
     }
 
     private addIntegrationTest(project: Project, returnedClass: string, packageName: string,
-        testLocation: string, requestParam: string, path: string, lowerReturnedClass: string) {
+        testLocation: string, requestParam: string, path: string, lowerReturnedClass: string,
+        fieldName: string) {
         let fileName = testLocation + `/${returnedClass}WebIntegrationTests.java`
         let params = "";
         if (this.requestParam != "") {
@@ -81,7 +125,7 @@ public class ${returnedClass} {
     @Test
     public void ${lowerReturnedClass}Test() {
         ${returnedClass} result = restTemplate.getForObject(BASE_PATH + "/${path}${params}", ${returnedClass}.class);
-         assertEquals(new ${returnedClass}(), result);
+         assertEquals("hello", result.get${this.capitalise(fieldName)}());
     }`
         if (project.fileExists(fileName)) {
             let endOfClassDeclaration = /^}/;
