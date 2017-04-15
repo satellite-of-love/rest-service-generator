@@ -4,24 +4,21 @@ import { Pattern } from '@atomist/rug/operations/RugOperation';
 import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
 
 /**
- * Sample TypeScript editor used by AddUpgradeDockerfile.
+ * upgrade the dockerfile to latest standards
  */
 @Editor("UpgradeDockerfile", "make corrections to dockerfiles everywhere")
-@Tags("documentation")
+@Tags("satellite-of-love", "docker")
 export class UpgradeDockerfile implements EditProject {
 
-    @Parameter({
-        displayName: "Some Input",
-        description: "example of how to specify a parameter using decorators",
-        pattern: Pattern.any,
-        validInput: "a description of the valid input",
-        minLength: 1,
-        maxLength: 100
-    })
-    inputParameter: string;
-
     edit(project: Project) {
-        project.addFile("hello.txt", "Hello, World!\n" + this.inputParameter + "\n");
+        if (project.fileExists("src/main/docker/Dockerfile")) {
+            let dockerfile = project.findFile("src/main/docker/Dockerfile");
+            let newContents = dockerfile.content.replace(
+                "FROM sforzando-docker-dockerv2-local.artifactoryonline.com/newrelic:0.5.0", "FROM java:8").replace(
+                "-Xmx2g", "-Xmx200m"
+                );
+            dockerfile.setContent(newContents)
+        }
     }
 }
 
