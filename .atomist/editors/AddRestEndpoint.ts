@@ -176,6 +176,7 @@ public class ${returnedClass}WebIntegrationTests {
         }
         let controllerMethod =
             `
+    @CrossOrigin()
     @RequestMapping(path = "/${path}")
     public ${returnedClass} ${lowerReturnedClass}(${params}) {
         return new ${returnedClass}(${pojoField});
