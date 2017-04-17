@@ -37,10 +37,11 @@ This change is optional; take it or leave it; it probably won't hurt and might h
         pxe.with<File>(project, "/src/test//File()", f => {
             if (/WebIntegrationTests.java$/.exec(f.name) && /WebEnvironment.DEFINED_PORT/.exec(f.content)) {
                 console.log(`Changing DEFINED_PORT to RANDOM_PORT in file ${f.name} in ${project.name}`)
+
                 f.replace("WebEnvironment.DEFINED_PORT", "WebEnvironment.RANDOM_PORT");
                 f.regexpReplace("private static final int PORT.*\n", ""); // no more defined port
-                f.replace("// Parameterize tests like this", ""); // this was in the template before
-                f.regexpReplace(`.*BASE_PATH = .*PORT;`, ""); // replace this with magic
+                f.replace("// Parameterize tests like this\n", ""); // this was in the template before
+                f.regexpReplace(`.*BASE_PATH = .*PORT;\n`, ""); // replace this with magic
                 f.replace("BASE_PATH", `"/"`); // this may not be correct for all projects, there may be more to it. People can correct in their own PRs for now
 
                 f.replace("private RestTemplate restTemplate = new RestTemplate();", "@Autowired\n    private TestRestTemplate restTemplate;"); // Here is the magic!
