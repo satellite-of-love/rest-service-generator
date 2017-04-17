@@ -42,7 +42,10 @@ This change is optional; take it or leave it; it probably won't hurt and might h
                 f.replace("// Parameterize tests like this", ""); // this was in the template before
                 f.regexpReplace(`.*BASE_PATH = .*PORT;`, ""); // replace this with magic
                 f.replace("BASE_PATH", `"/"`); // this may not be correct for all projects, there may be more to it. People can correct in their own PRs for now
+
                 f.replace("private RestTemplate restTemplate = new RestTemplate();", "@Autowired\n    private TestRestTemplate restTemplate;"); // Here is the magic!
+                f.replace("import org.springframework.web.client.RestTemplate;", 
+                "import org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.web.client.TestRestTemplate;")
             };
         })
     }
