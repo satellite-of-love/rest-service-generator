@@ -17,7 +17,7 @@ import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
  * to use random ports in these tests.
  */
 
-@Editor("UseRandomPort", "change the port number of a service")
+@Editor("UseRandomPort", "change WebIntegrationTests from DEFINED_PORT to RANDOM_PORT")
 @Tags("spring", "satellite-of-love", "jess")
 export class UseRandomPort implements EditProject {
 
