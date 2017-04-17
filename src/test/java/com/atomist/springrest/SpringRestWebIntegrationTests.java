@@ -15,8 +15,6 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = SpringRestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SpringRestWebIntegrationTests {
 
-  
-
     // Use this to run tests
     @Autowired
     private TestRestTemplate restTemplate;

@@ -60,6 +60,7 @@ export function removeUnnecessaryFiles(project: Project): void {
     for (let f of toDelete) {
         project.deleteFile(f);
     }
+    project.deleteDirectory("META-INF");
 }
 
 /**
