@@ -32,10 +32,10 @@ This automated pull request attempts to change defined ports to random ports in 
 Please review the changes and see whether they make sense for your project. Contact @jessitron in Slack with feedback either way.
 This change is optional; take it or leave it; it probably won't hurt and might help.
 `)
-
-        let pxe = project.context.pathExpressionEngine;
-        pxe.with<File>(project, "/src/test//File()", f => {
-            if (/WebIntegrationTests.java$/.exec(f.name) && /WebEnvironment.DEFINED_PORT/.exec(f.content)) {
+        // See Antlr grammar for Java for the structure of this path expression
+        project.context.pathExpressionEngine.with<File>(project, 
+        "/src/test/java//File()[/JavaFile()//classDeclaration//normalAnnotation[@typeName='SpringBootTest']]", f => {
+            if (/WebEnvironment.DEFINED_PORT/.exec(f.content)) {
                 console.log(`Changing DEFINED_PORT to RANDOM_PORT in file ${f.name} in ${project.name}`)
 
                 f.replace("WebEnvironment.DEFINED_PORT", "WebEnvironment.RANDOM_PORT");
