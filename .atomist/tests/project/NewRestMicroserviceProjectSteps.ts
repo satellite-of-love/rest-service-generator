@@ -17,118 +17,108 @@
 import { Project } from "@atomist/rug/model/Project";
 import { Given, When, Then, ProjectScenarioWorld } from "@atomist/rug/test/project/Core";
 
-const projectName = "MyService";
-const artifactId = "MyService";
-const rootPackage = "com.jessitron";
-const version = "1.0.0-SNAPSHOT";
-const serviceClassName = "MyService";
-const propsFile = "src/main/resources/application.properties";
-const groupId = "satellite-of-love";
-const pomPath = "pom.xml";
-const readmePath = "README.md";
-const description = "And now for something completely different";
-const srcPath = "src/main/java/com/jessitron/" + serviceClassName + "Application.java";
-const testPath = "src/test/java/com/jessitron/" + serviceClassName + "ApplicationTests.java";
+import * as constants from "./Constants"
 
 When("NewRestService is provided all parameters", (p, world) => {
     let psworld = world as ProjectScenarioWorld;
     let generator = psworld.generator("NewRestService");
-    psworld.generateWith(generator, projectName, {
-        artifactId: artifactId,
-        rootPackage: rootPackage,
-        version: version,
-        serviceClassName: serviceClassName,
-        groupId: groupId,
-        description: description
+    psworld.generateWith(generator, constants.projectName, {
+        artifactId: constants.artifactId,
+        rootPackage: constants.rootPackage,
+        version: constants.version,
+        serviceClassName: constants.serviceClassName,
+        groupId: constants.groupId,
+        description: constants.description
     });
 });
 
 Then("the class source file exists", (p, world) => {
-    return p.fileExists(srcPath);
+    return p.fileExists(constants.srcPath);
 });
 
 Then("the class source file contains the class name", (p, world) => {
-    return p.fileContains(srcPath, `public class ${serviceClassName}Application `);
+    return p.fileContains(constants.srcPath, 
+    `public class ${constants.serviceClassName}Application `);
 });
 
 Then("the class source file contains the package name", (p, world) => {
-    return p.fileContains(srcPath, `package ${rootPackage}`);
+    return p.fileContains(constants.srcPath, `package ${constants.rootPackage}`);
 });
 
 Then("the class source file should not contain the original class name", (p, world) => {
-    return !p.fileContains(srcPath, "SpringRestApplication");
+    return !p.fileContains(constants.srcPath, "SpringRestApplication");
 });
 
 Then("the class source file should not contain the original package name", (p, world) => {
-    return !p.fileContains(srcPath, "com.atomist.springrest");
+    return !p.fileContains(constants.srcPath, "com.atomist.springrest");
 });
 
 Then("the class test file exists", (p, world) => {
-    return p.fileExists(testPath);
+    return p.fileExists(constants.testPath);
 });
 
 Then("the class test file contains the class name", (p, world) => {
-    return p.fileContains(testPath, `public class ${serviceClassName}ApplicationTests `);
+    return p.fileContains(constants.testPath, `public class ${constants.serviceClassName}ApplicationTests `);
 });
 
 Then("the class test file contains the package name", (p, world) => {
-    return p.fileContains(testPath, `package ${rootPackage}`);
+    return p.fileContains(constants.testPath, `package ${constants.rootPackage}`);
 });
 
 Then("the class test file should not contain the original class name", (p, world) => {
-    return !p.fileContains(testPath, "SpringRestApplicationTests");
+    return !p.fileContains(constants.testPath, "SpringRestApplicationTests");
 });
 
 Then("the class test file should not contain the original package name", (p, world) => {
-    return !p.fileContains(testPath, "com.atomist.springrest");
+    return !p.fileContains(constants.testPath, "com.atomist.springrest");
 });
 
 Then("the class test file exists", (p, world) => {
-    return p.fileExists(testPath);
+    return p.fileExists(constants.testPath);
 });
 
 Then("the POM file contains the artifact ID", (p, world) => {
-    return p.fileContains(pomPath, artifactId);
+    return p.fileContains(constants.pomPath, constants.artifactId);
 });
 
 Then("the POM file contains the version", (p, world) => {
-    return p.fileContains(pomPath, version);
+    return p.fileContains(constants.pomPath, constants.version);
 });
 
 Then("the README contains the project name", (p, world) => {
-    return p.fileContains(readmePath, projectName);
+    return p.fileContains(constants.readmePath, constants.projectName);
 });
 
 Then("the README contains the description", (p, world) => {
-    return p.fileContains(readmePath, description);
+    return p.fileContains(constants.readmePath, constants.description);
 });
 
 Then("the README contains help", (p, world) => {
-    return p.fileContains(readmePath, "Need Help?");
+    return p.fileContains(constants.readmePath, "Need Help?");
 });
 
 Then("the README contains Spring Boot", (p, world) => {
-    return p.fileContains(readmePath, "[Spring Boot]");
+    return p.fileContains(constants.readmePath, "[Spring Boot]");
 });
 
 Then("the README contains Maven link", (p, world) => {
-    return p.fileContains(readmePath, "[Maven][mvn]");
+    return p.fileContains(constants.readmePath, "[Maven][mvn]");
 });
 
 Then("the README contains Maven instructions", (p, world) => {
-    return p.fileContains(readmePath, "mvn spring-boot:run");
+    return p.fileContains(constants.readmePath, "mvn spring-boot:run");
 });
 
 Then("the README should not contain Rug information", (p, world) => {
-    return !p.fileContains(readmePath, "## Rug");
+    return !p.fileContains(constants.readmePath, "## Rug");
 });
 
 Then("the props file should exist", (p, world) => {
-    return p.fileExists(propsFile);
+    return p.fileExists(constants.propsFile);
 });
 
 Then("the props file contains the server port", (p, world) => {
-    return p.fileContains(propsFile, "server.port=8080");
+    return p.fileContains(constants.propsFile, "server.port=8080");
 });
 
 Then("the LICENSE file should not exist", (p, world) => {
@@ -154,12 +144,12 @@ Then("the Travis CI configuration should not exist", (p, world) => {
 When("NewRestService is provided all parameters but description", (p, world) => {
     let psworld = world as ProjectScenarioWorld;
     let generator = psworld.generator("NewRestService");
-    psworld.generateWith(generator, projectName, {
-        artifactId: artifactId,
-        rootPackage: rootPackage,
-        version: version,
-        serviceClassName: serviceClassName,
-        groupId: groupId
+    psworld.generateWith(generator, constants.projectName, {
+        artifactId: constants.artifactId,
+        rootPackage: constants.rootPackage,
+        version: constants.version,
+        serviceClassName: constants.serviceClassName,
+        groupId: constants.groupId
     });
 });
 
@@ -167,12 +157,12 @@ When("RestService for NewRestService should fail when given an invalid parameter
     let psworld = world as ProjectScenarioWorld;
     let generator = psworld.generator("NewRestService");
     let badVersion = "not.valid.version";
-    psworld.generateWith(generator, projectName, {
-        artifactId: artifactId,
-        rootPackage: rootPackage,
+    psworld.generateWith(generator, constants.projectName, {
+        artifactId: constants.artifactId,
+        rootPackage: constants.rootPackage,
         version: badVersion,
-        serviceClassName: serviceClassName,
-        groupId: groupId,
-        description: description
+        serviceClassName: constants.serviceClassName,
+        groupId: constants.groupId,
+        description: constants.description
     });
 });
