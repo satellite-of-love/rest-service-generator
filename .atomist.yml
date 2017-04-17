@@ -261,3 +261,16 @@ editor:
   parameters:
     - "component": "patch"
 
+---
+kind: "operation"
+client: "rug-cli 0.30.2"
+editor:
+  name: "UseRandomPort"
+  group: "satellite-of-love"
+  artifact: "rest-service-generator"
+  version: "0.11.4"
+  origin:
+    repo: "git@github.com:satellite-of-love/rest-service-generator"
+    branch: "master"
+    sha: "6235e2a"
+
