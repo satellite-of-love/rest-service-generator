@@ -3,7 +3,8 @@ import { Project } from '@atomist/rug/model/Project';
 import { File } from '@atomist/rug/model/File';
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
-
+import {DecoratingPathExpressionEngine} from '@atomist/rug/ast/DecoratingPathExpressionEngine'
+import {RichTextTreeNode} from '@atomist/rug/ast/TextTreeNodeOps'
 
 /*
  * We have encountered a failing build in a brand-new service,
@@ -32,22 +33,24 @@ This automated pull request attempts to change defined ports to random ports in 
 Please review the changes and see whether they make sense for your project. Contact @jessitron in Slack with feedback either way.
 This change is optional; take it or leave it; it probably won't hurt and might help.
 `)
+        // Get mixins allowing more sophisticated node operations
+        const pxe = new DecoratingPathExpressionEngine(project.context.pathExpressionEngine);
+
         // See Antlr grammar for Java for the structure of this path expression
-        project.context.pathExpressionEngine.with<File>(project, 
-        "/src/test/java//File()[/JavaFile()//classDeclaration//normalAnnotation[@typeName='SpringBootTest']]", f => {
-            if (/WebEnvironment.DEFINED_PORT/.exec(f.content)) {
-                console.log(`Changing DEFINED_PORT to RANDOM_PORT in file ${f.name} in ${project.name}`)
+        pxe.with<RichTextTreeNode>(project, 
+        "/src/test/java//JavaFile()//classDeclaration//normalAnnotation[@typeName='SpringBootTest']//elementValue[@value='WebEnvironment.DEFINED_PORT']", n => {
+            const f = n.containingFile();
+            console.log(`Changing DEFINED_PORT to RANDOM_PORT in file ${f.name} in ${project.name}`);
 
-                f.replace("WebEnvironment.DEFINED_PORT", "WebEnvironment.RANDOM_PORT");
-                f.regexpReplace("private static final int PORT.*\n", ""); // no more defined port
-                f.replace("// Parameterize tests like this\n", ""); // this was in the template before
-                f.regexpReplace(`.*BASE_PATH = .*PORT;\n`, ""); // replace this with magic
-                f.replace("BASE_PATH", `"/"`); // this may not be correct for all projects, there may be more to it. People can correct in their own PRs for now
+            n.update("WebEnvironment.RANDOM_PORT");
+            f.regexpReplace("private static final int PORT.*\n", ""); // no more defined port
+            f.replace("// Parameterize tests like this\n", ""); // this was in the template before
+            f.regexpReplace(`.*BASE_PATH = .*PORT;\n`, ""); // replace this with magic
+            f.replace("BASE_PATH", `"/"`); // this may not be correct for all projects, there may be more to it. People can correct in their own PRs for now
 
-                f.replace("private RestTemplate restTemplate = new RestTemplate();", "@Autowired\n    private TestRestTemplate restTemplate;"); // Here is the magic!
-                f.replace("import org.springframework.web.client.RestTemplate;", 
-                "import org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.web.client.TestRestTemplate;")
-            };
+            f.replace("private RestTemplate restTemplate = new RestTemplate();", "@Autowired\n    private TestRestTemplate restTemplate;"); // Here is the magic!
+            f.replace("import org.springframework.web.client.RestTemplate;", 
+            "import org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.web.client.TestRestTemplate;")
         })
     }
 
