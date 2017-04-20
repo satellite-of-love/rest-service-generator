@@ -1,4 +1,4 @@
-package com.atomist.addrestendpoint;
+package com.atomist.springrest.addrestendpoint;
 
 public class OneEndpoint {
 

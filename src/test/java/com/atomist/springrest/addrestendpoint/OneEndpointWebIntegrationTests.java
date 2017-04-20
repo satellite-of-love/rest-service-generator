@@ -1,4 +1,4 @@
-package com.atomist.addrestendpoint;
+package com.atomist.springrest.addrestendpoint;
 
 import com.atomist.springrest.SpringRestApplication;
 import org.junit.Test;
@@ -16,6 +16,8 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = SpringRestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class OneEndpointWebIntegrationTests {
 
+
+    //OH: It can be draining to be the adult in every conversation ... on the internet
     @Autowired
     private TestRestTemplate restTemplate;
 

@@ -1,4 +1,4 @@
-package com.atomist.addrestendpoint;
+package com.atomist.springrest.addrestendpoint;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
