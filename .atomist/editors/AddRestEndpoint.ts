@@ -1,7 +1,10 @@
 import { EditProject } from '@atomist/rug/operations/ProjectEditor';
 import { Project } from '@atomist/rug/model/Project';
+import { File } from '@atomist/rug/model/File';
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
+import * as RugGeneratorFunctions from '../generators/RugGeneratorFunctions';
+import { RichTextTreeNode } from '@atomist/rug/ast/TextTreeNodeOps'
 
 @Editor("AddRestEndpoint", "add an endpoint to return a POJO")
 @Tags("spring", "satellite-of-love", "jess")
@@ -25,7 +28,7 @@ export class AddRestEndpoint implements EditProject {
         minLength: 1,
         maxLength: 100
     })
-    fieldName: string = "";
+    fieldName: string;
 
     @Parameter({
         displayName: "pojo field type",
@@ -35,12 +38,13 @@ export class AddRestEndpoint implements EditProject {
         minLength: 1,
         maxLength: 100
     })
-    fieldType: string = "";
+    fieldType: string;
 
     edit(project: Project) {
-        let packageName = `com.jessitron` // todo: figure this out
-        let sourceLocation = "src/main/java/com/jessitron"
-        let testLocation = "src/test/java/com/jessitron"
+        let { applicationClass, packageName } = this.whereIsTheApplication(project);
+        console.log(`Application is ${packageName}.${applicationClass}`)
+        let sourceLocation = "src/main/java/com/jessitron" // WRONG
+        let testLocation = "src/test/java/com/jessitron" // WRONG
         let lowerReturnedClass = this.uncapitalise(this.returnedClass);
         let path = lowerReturnedClass;
         let returnedClass = this.returnedClass;
@@ -49,8 +53,11 @@ export class AddRestEndpoint implements EditProject {
 
         this.addPojo(project, sourceLocation, returnedClass, packageName, this.fieldName, this.fieldType);
         this.addController(project, sourceLocation, returnedClass, packageName, path, requestParam, requestParamType, lowerReturnedClass);
-        this.addIntegrationTest(project, returnedClass, packageName, testLocation, requestParam, path, lowerReturnedClass, this.fieldName);
+        this.addIntegrationTest(project, returnedClass, packageName, testLocation, requestParam, path, lowerReturnedClass, this.fieldName, this.fieldType, applicationClass);
 
+        //TODO: these aren't working, directories need cleanup. (better would be to remove empties in changePackage)
+        project.deleteDirectory("src/main/java/com/atomist/springrest");
+        project.deleteDirectory("src/test/java/com/atomist/springrest");
     }
 
     private uncapitalise(str) {
@@ -67,138 +74,132 @@ export class AddRestEndpoint implements EditProject {
         }).replace(/\s+/g, '');
     }
 
+    private whereIsTheApplication(project: Project) {
+        let applicationClass = "ChangeMeApplication";
+        let packageName = "com.jessitron";
+        // I would love to do this with JavaFile path expressions but don't know how
+        project.context.pathExpressionEngine.with<File>(project, "/src/main/java//File()", f => {
+            if (f.name.match(/Application.java/) && f.contains("@SpringBootApplication")) {
+                let classNameMatches = f.content.match(/public class ([A-Za-z0-9_]+) {/);
+                if (classNameMatches && classNameMatches[1]) {
+                    applicationClass = classNameMatches[1];
+                }
+            }
+            let packageMatch = f.content.match(/^package ([\w\.]+);/);
+            if (packageMatch && packageMatch[1]) {
+                packageName = packageMatch[1];
+            }
+        })
+
+        return {
+            applicationClass: applicationClass,
+            packageName: packageName
+        };
+    }
+
     private addPojo(project: Project, sourceLocation: string, returnedClass: string, packageName: string,
         fieldName: string, fieldType: string) {
-        let pojoFile = sourceLocation + `/${returnedClass}.java`
-        if (project.fileExists(pojoFile)) {
-            console.log(`${pojoFile} already exists, skipping`);
+        let pojoFilename = sourceLocation + `/${returnedClass}.java`
+        if (project.fileExists(pojoFilename)) {
+            console.log(`${pojoFilename} already exists, skipping`);
             return;
         }
 
-        let fieldMethods = "";
-        if (fieldName != "" && fieldType != "") {
-            fieldMethods = `
-    private ${fieldType} ${fieldName};
+        project.copyEditorBackingFileOrFail('src/main/java/com/atomist/springrest/addrestendpoint/OneEndpoint.java');
+        RugGeneratorFunctions.movePackage(project, 'com.atomist.springrest.addrestendpoint', packageName);
+        RugGeneratorFunctions.renameClass(project, 'OneEndpoint', returnedClass);
 
-    public ${returnedClass}(${fieldType} ${fieldName}) {
-        this.${fieldName} = ${fieldName};
-    }
-
-    public ${fieldType} get${this.capitalise(fieldName)} () {
-        return ${fieldName};
-    }
-
-    public void set${this.capitalise(fieldName)} (${fieldType} ${fieldName}) {
-        this.${fieldName} = ${fieldName};
-    }
-`
+        let pojoFile = project.findFile(pojoFilename);
+        if (pojoFile == null) {
+            throw `this is bad, didn't find code at ${pojoFilename}`;
         }
 
-        let pojoContents =
-            `package ${packageName};
+        let newContents = pojoFile.content.replace(
+            /OneParam/g, this.capitalise(fieldName)
+        ).replace(
+            /oneParam/g, fieldName
+            ).replace(
+            /String/g, fieldType
+            );
 
-public class ${returnedClass} {
-    ${fieldMethods}
-    // don't forget the default constructor. Jackson likes it
-    public ${returnedClass} () {}
-}
-`
-        project.addFile(pojoFile, pojoContents);
-
+        pojoFile.setContent(newContents);
     }
 
     private addIntegrationTest(project: Project, returnedClass: string, packageName: string,
         testLocation: string, requestParam: string, path: string, lowerReturnedClass: string,
-        fieldName: string) {
+        fieldName: string, fieldType: string, applicationClass: string) {
         let fileName = testLocation + `/${returnedClass}WebIntegrationTests.java`;
-        let params = "";
-        if (requestParam != "") {
-            params = `?${requestParam}=hello`;
-        }
-        let method =
-            `
-    @Test
-    public void ${lowerReturnedClass}Test() {
-        ${returnedClass} result = restTemplate.getForObject("/${path}${params}", ${returnedClass}.class);
-        assertEquals("hello", result.get${this.capitalise(fieldName)}());
-    }
-    `;
         if (project.fileExists(fileName)) {
-            let endOfClassDeclaration = /^}/;
-            let file = project.findFile(fileName);
-            let newContent = file.content.replace(endOfClassDeclaration,
-                "\n" + method + "\n}")
-            file.setContent(newContent);
-        } else {
-            let applicationClass = "ChangeMe"; // TODO: I have to use a path expression to find it, and that's a mode switch
-
-
-            // It would be better to retrieve my template content and modify it
-            let fileContent =
-                `package ${packageName};
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ${applicationClass}Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ${returnedClass}WebIntegrationTests {
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    ${method}
-}
-`
-            project.addFile(fileName, fileContent);
+            console.log("An integration test file exists already; TODO add a method to it");
+            return;
         }
+
+        project.copyEditorBackingFileOrFail('src/test/java/com/atomist/springrest/addrestendpoint/OneEndpointWebIntegrationTests.java');
+        RugGeneratorFunctions.movePackage(project, 'com.atomist.springrest.addrestendpoint', packageName);
+        RugGeneratorFunctions.renameClass(project, 'OneEndpointWebIntegrationTests', returnedClass + "WebIntegrationTests");
+
+        let testFile = project.findFile(fileName);
+        if (testFile == null) {
+            // console.log("printing test sources...");
+            // project.context.pathExpressionEngine.with<File>(project, "/src/test/java//File()", f => {
+            //     console.log(f.path);
+            // })
+            throw `this is bad, didn't find test code at ${fileName}`;
+        }
+
+        let newContents = testFile.content.replace(
+            /oneEndpoint/g, lowerReturnedClass
+        ).replace(
+            /OneEndpoint/g, returnedClass
+            ).replace(
+            /String oneParam/g, `${fieldType} ${fieldName}`
+            ).replace(
+            /oneParam/g, fieldName
+            ).replace(
+            /OneParam/g, this.capitalise(fieldName)
+            ).replace(
+            /import com.atomist.springrest.SpringRestApplication;\n/, ""
+            ).replace(
+            /SpringRestApplication/, applicationClass
+            ).replace(
+            /onePath/, path);
+        console.log("application class is " + applicationClass);
+
+        testFile.setContent(newContents);
 
     }
 
     private addController(project: Project, sourceLocation: string, returnedClass: string,
         packageName: string, path: string, requestParam: string, requestParamType: string, lowerReturnedClass: string) {
-        let controllerFile = sourceLocation + `/${returnedClass}Controller.java`;
-        let params = "";
-        let pojoField = "";
-        if (requestParam != "") {
-            params = `@RequestParam(value = "${requestParam}") ${requestParamType} ${requestParam}`;
-            pojoField = requestParam;
-        }
-        let controllerMethod =
-            `
-    @CrossOrigin()
-    @RequestMapping(path = "/${path}")
-    public ${returnedClass} ${lowerReturnedClass}(${params}) {
-        return new ${returnedClass}(${pojoField});
-    }
-`;
-        if (project.fileExists(controllerFile)) {
-            let beginningOfClassDeclaration = `${returnedClass}Controller {`;
-            project.replace(beginningOfClassDeclaration, beginningOfClassDeclaration + "\n" + controllerMethod);
-        } else {
-            let controllerContent =
-                `package ${packageName};
+        let controllerFilename = sourceLocation + `/${returnedClass}Controller.java`;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-public class ${returnedClass}Controller {
-${controllerMethod}
-}
-    ` // syntax highlighting is confused so `
-            project.addFile(controllerFile, controllerContent);
+        if (project.fileExists(controllerFilename)) {
+            console.log("A controller file exists already; TODO add a method to it");
+            return;
         }
+
+        project.copyEditorBackingFileOrFail('src/main/java/com/atomist/springrest/addrestendpoint/OneEndpointController.java');
+        RugGeneratorFunctions.movePackage(project, 'com.atomist.springrest.addrestendpoint', packageName);
+        RugGeneratorFunctions.renameClass(project, 'OneEndpointController', returnedClass + "Controller");
+
+        let controllerFile = project.findFile(controllerFilename);
+        if (controllerFile == null) {
+            // console.log("printing sources...");
+            // project.context.pathExpressionEngine.with<File>(project, "/src/main/java//File()", f => {
+            //     console.log(f.path);
+            // })
+            throw `this is bad, didn't find controller code at ${controllerFilename}. Thought I just put it there`;
+        }
+
+        let newContent = controllerFile.content.replace(
+            /String oneParam/g, `${requestParamType} ${requestParam}`
+        ).replace(
+            /oneParam/g, requestParam
+            ).replace(
+            /onePath/g, path).replace(
+            /OneEndpoint/g, returnedClass);
+
+        controllerFile.setContent(newContent);
     }
 
 }
