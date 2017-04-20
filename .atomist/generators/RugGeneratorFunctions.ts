@@ -56,6 +56,18 @@ export function cleanChangeLog(project: Project, owner: string): void {
  * @param project  Project whose README should be cleaned.
  */
 export function removeUnnecessaryFiles(project: Project): void {
+    // These files are for editors in this same rug archive
+    let directoriesToDelete = [
+        "src/main/java/com/atomist/addrestendpoint",
+        "src/test/java/com/atomist/addrestendpoint"];
+    for (let d of directoriesToDelete) {
+        if (!project.directoryExists(d)) {
+            throw "Wanted to delete ${d} but it is not here. Is this a typo?";
+        }
+        project.deleteDirectory(d);
+    }
+
+
     let toDelete: string[] = ["LICENSE", "CODE_OF_CONDUCT.md", ".travis.yml"];
     for (let f of toDelete) {
         project.deleteFile(f);

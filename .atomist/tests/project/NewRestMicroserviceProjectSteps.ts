@@ -73,6 +73,17 @@ Then("the class test file should not contain the original package name", (p, wor
     return !p.fileContains(constants.testPath, "com.atomist.springrest");
 });
 
+Then("only one package of tests exists", (p, world) => {
+    // TODO: implement this. I don't think project gives me enough
+    // methods, without path expressions, to list the filenames in a dir
+
+    // I want to test that I haven't (by implementing an edit that uses files)
+    // added a new package to the output.
+
+    // After implementing, put it in the test. See it fail.
+    return true; 
+})
+
 Then("the class test file exists", (p, world) => {
     return p.fileExists(constants.testPath);
 });
