@@ -11,3 +11,6 @@ export const readmePath = "README.md";
 export const description = "And now for something completely different";
 export const srcPath = "src/main/java/com/jessitron/" + serviceClassName + "Application.java";
 export const testPath = "src/test/java/com/jessitron/" + serviceClassName + "ApplicationTests.java";
+export const dockerRegistryUser = "dockerRegistryUser";
+export const dockerRegistryToken = "YODOCKERREGISTRY";
+export const githubToken = "YOGITHUB";

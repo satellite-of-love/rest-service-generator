@@ -56,7 +56,7 @@ export function cleanChangeLog(project: Project, owner: string): void {
  * @param project  Project whose README should be cleaned.
  */
 export function removeUnnecessaryFiles(project: Project): void {
-    // These files are for editors in this same rug archive
+   // These files are for editors in this same rug archive
     let directoriesToDelete = [
         "src/main/java/com/atomist/springrest/addrestendpoint",
         "src/test/java/com/atomist/springrest/addrestendpoint"];
@@ -67,8 +67,11 @@ export function removeUnnecessaryFiles(project: Project): void {
         project.deleteDirectory(d);
     }
 
+let buildFiles = [".travis.yml", "src/main/docker/Dockerfile", "src/main/scripts/travis-build.bash"];
     let k8specsFiles = ["80-new-service-deployment.json", "60-new-service-svc.json"]
-    let toDelete: string[] = ["LICENSE", "CODE_OF_CONDUCT.md", ".travis.yml"].concat(k8specsFiles);
+    let toDelete: string[] = ["LICENSE", "CODE_OF_CONDUCT.md", ".travis.yml"].concat(
+        k8specsFiles).concat(
+            buildFiles);
     for (let f of toDelete) {
         project.deleteFile(f);
     }
