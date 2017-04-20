@@ -56,7 +56,8 @@ export function cleanChangeLog(project: Project, owner: string): void {
  * @param project  Project whose README should be cleaned.
  */
 export function removeUnnecessaryFiles(project: Project): void {
-    let toDelete: string[] = ["LICENSE", "CODE_OF_CONDUCT.md", ".travis.yml"];
+    let buildFiles = [".travis.yml", "src/main/docker/Dockerfile", "src/main/scripts/travis-build.bash"];
+    let toDelete: string[] = ["LICENSE", "CODE_OF_CONDUCT.md"].concat(buildFiles);
     for (let f of toDelete) {
         project.deleteFile(f);
     }

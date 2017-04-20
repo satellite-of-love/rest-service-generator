@@ -6,10 +6,10 @@ import { PathExpressionEngine } from '@atomist/rug/tree/PathExpression';
 import { Pom } from '@atomist/rug/model/Pom';
 
 let encryptedTokenParameterValidation = {
-    pattern: Pattern.any,
-    validInput: "alphanumeric",
-    minLength: 1,
-    maxLength: 1000
+	pattern: Pattern.any,
+	validInput: "alphanumeric",
+	minLength: 1,
+	maxLength: 1000
 }
 /**
  * Sample TypeScript editor used by AddMyFirstEditor.
@@ -19,62 +19,63 @@ let encryptedTokenParameterValidation = {
 export class PrepareTravisBuildFiles implements EditProject {
 
 
-    @Parameter({
-        ...encryptedTokenParameterValidation,
-        displayName: "encrypted github token",
-        description: "travis-encrypted GITHUB_TOKEN=..."
-    })
-    encryptedGithubToken: string;
+	@Parameter({
+		...encryptedTokenParameterValidation,
+		displayName: "encrypted github token",
+		description: "travis-encrypted GITHUB_TOKEN=..."
+	})
+	encryptedGithubToken: string;
 
-    @Parameter({
-        ...encryptedTokenParameterValidation,
-        displayName: "encrypted atomist docker repo user",
-        description: "travis-encrypted ATOMIST_REPO_USER=..."
-    })
-    encryptedDockerRegistryUser: string;
+	@Parameter({
+		...encryptedTokenParameterValidation,
+		displayName: "encrypted atomist docker repo user",
+		description: "travis-encrypted ATOMIST_REPO_USER=..."
+	})
+	encryptedDockerRegistryUser: string;
 
-    @Parameter({
-        ...encryptedTokenParameterValidation,
-        displayName: "encrypted atomist docker token",
-        description: "travis-encrypted ATOMIST_REPO_TOKEN=..."
-    })
-    encryptedDockerRegistryToken: string;
+	@Parameter({
+		...encryptedTokenParameterValidation,
+		displayName: "encrypted atomist docker token",
+		description: "travis-encrypted ATOMIST_REPO_TOKEN=..."
+	})
+	encryptedDockerRegistryToken: string;
 
-    edit(project: Project) {
-        console.log(`Enabling build on ${project.name}`);
+	edit(project: Project) {
+		console.log(`Enabling build on ${project.name}`);
 
-        // .travis.yml
-        if (!project.fileExists(".travis.yml")) {
-            project.copyEditorBackingFileOrFailToDestination("rest-service.travis.yml", ".travis.yml");
-        }
+		// .travis.yml
+		if (!project.fileExists(".travis.yml")) {
+			project.copyEditorBackingFileOrFailToDestination(".travis.yml", ".travis.yml");
+		}
 
-        // Add secrets, unless there are already secrets
-        if (!project.fileContains(".travis.yml", "- secure: ")) {
-            let travisFile = project.findFile(".travis.yml");
-            travisFile.replace("  global:",
-                `  global:
+		// replace all secrets
+		let travisContent = project.findFile(".travis.yml").content;
+		let newContent = travisContent.replace(
+			/^.*- secure:.*\n/g, "").replace(
+			"  global:",
+			`  global:
   - secure: ${this.encryptedDockerRegistryToken}
   - secure: ${this.encryptedDockerRegistryUser}
   - secure: ${this.encryptedGithubToken}`);
-        }
 
-        // docker
-        if (!project.fileExists("src/main/docker/Dockerfile")) {
-            project.copyEditorBackingFileOrFailToDestination("rest-service.Dockerfile", "src/main/docker/Dockerfile")
-        }
 
-        // build script
-        if (!project.fileExists("src/main/scripts/travis-build.bash")) {
-            project.copyEditorBackingFileOrFailToDestination(
-                "rest-service.travis-build.bash",
-                "src/main/scripts/travis-build.bash");
-        }
+		// docker
+		if (!project.fileExists("src/main/docker/Dockerfile")) {
+			project.copyEditorBackingFileOrFailToDestination("rest-service.Dockerfile", "src/main/docker/Dockerfile")
+		}
 
-        // update the POM
-        let eng: PathExpressionEngine = project.context.pathExpressionEngine;
-        eng.with<Pom>(project, "/Pom()", pom => {
-            pom.addOrReplaceBuildPlugin("org.apache.maven.plugins", "maven-dependency-plugin",
-                `<plugin>
+		// build script
+		if (!project.fileExists("src/main/scripts/travis-build.bash")) {
+			project.copyEditorBackingFileOrFailToDestination(
+				"rest-service.travis-build.bash",
+				"src/main/scripts/travis-build.bash");
+		}
+
+		// update the POM
+		let eng: PathExpressionEngine = project.context.pathExpressionEngine;
+		eng.with<Pom>(project, "/Pom()", pom => {
+			pom.addOrReplaceBuildPlugin("org.apache.maven.plugins", "maven-dependency-plugin",
+				`<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>2.10</version>
@@ -99,7 +100,7 @@ export class PrepareTravisBuildFiles implements EditProject {
 					</execution>
 				</executions>
 			</plugin>`);
-            pom.addOrReplaceBuildPlugin("org.apache.maven.plugins", "maven-resources-plugin", `
+			pom.addOrReplaceBuildPlugin("org.apache.maven.plugins", "maven-resources-plugin", `
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -122,7 +123,7 @@ export class PrepareTravisBuildFiles implements EditProject {
 					</execution>
 				</executions>
 			</plugin>`);
-            pom.addOrReplaceBuildPlugin("com.spotify", "docker-maven-plugin", `
+			pom.addOrReplaceBuildPlugin("com.spotify", "docker-maven-plugin", `
 			<plugin>
 				<groupId>com.spotify</groupId>
 				<artifactId>docker-maven-plugin</artifactId>
@@ -143,8 +144,8 @@ export class PrepareTravisBuildFiles implements EditProject {
 					</imageTags>
 				</configuration>
 			</plugin>`);
-        });
-    }
+		});
+	}
 }
 
 export const prepareTravisBuildFiles = new PrepareTravisBuildFiles();
