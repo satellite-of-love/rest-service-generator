@@ -19,7 +19,7 @@ export class RestrictCORS implements EditProject {
 
         pxe.with<File>(project, "/src/main//File()", f => {
             if (f.name.match(/.java$/)) {
-                f.replace("CrossOrigin()", `CrossOrigin(origins = "http://localhost:8080")`);
+                f.replace("CrossOrigin()", `CrossOrigin(origins = "http://localhost:8000")`);
             }
         });
 
@@ -31,7 +31,7 @@ export class RestrictCORS implements EditProject {
 
         If there is a particular reason that your service should allow more requests (like, it's a public API)
         then please comment on this PR and then close it or remove individual endpoints' changes.
-        `)
+        `);
     }
 }
 
