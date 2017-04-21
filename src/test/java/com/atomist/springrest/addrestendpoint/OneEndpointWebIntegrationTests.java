@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +25,16 @@ public class OneEndpointWebIntegrationTests {
 
     @Test
     public void oneEndpointTest() {
-        // why do I not get a damn 404 when the endpoint doesn't exist ???!?!?!?!?>?!?
-        // I'm deep in troubleshooting of "why doesn't this test work"
-        // but another layer in now, on "why doesn't this test fail (sooner)"
-        // in familiarity pain about Spring
-        // TODO: ask someone
-        OneEndpoint result = restTemplate.getForObject("/onePath", OneEndpoint.class);
-        System.out.println("how did I even get this? " + result);
-        assertEquals("hello", result.getOneParam());
+
+        String oneParam = "123";
+
+        ResponseEntity<OneEndpoint> result =
+                restTemplate.getForEntity(
+                        "/onePath?oneParam={_}",
+                        OneEndpoint.class,
+                        oneParam);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(oneParam, result.getBody().getOneParam());
     }
 }

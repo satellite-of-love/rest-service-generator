@@ -11,7 +11,6 @@ public class OneEndpointController {
     @CrossOrigin()
     @RequestMapping(path = "/onePath")
     public OneEndpoint oneEndpoint(@RequestParam(value = "oneParam") String oneParam) {
-        System.out.println ("IN CONTROLLER");
         return new OneEndpoint(oneParam);
     }
 }
