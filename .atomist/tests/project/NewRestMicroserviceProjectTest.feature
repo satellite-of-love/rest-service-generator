@@ -27,6 +27,8 @@ Feature: NewRestService generator should create Spring Boot REST service project
     Then the class source file should not contain the original package name
     Then the class test file should not contain the original class name
     Then the class test file should not contain the original package name
+    Then the source directory should contain only the minimum files  // TODO: implement rug#539 so that I can implement this test
+    Then the test directory should contain only the minimum files
     Then the POM file contains the artifact ID
     Then the POM file contains the version
     Then the README contains the project name
