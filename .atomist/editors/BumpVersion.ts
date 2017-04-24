@@ -34,8 +34,11 @@ export class BumpVersion implements EditProject {
         let patch = parseInt(versionMatch[3]);
         if (this.component == "major") {
             major = major + 1;
+            minor = 0;
+            patch = 0;
         } else if (this.component == "minor") {
             minor = minor + 1;
+            patch = 0;
         } else if (this.component == "patch") {
             patch = patch + 1;
         } else {
