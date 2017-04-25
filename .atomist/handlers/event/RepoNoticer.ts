@@ -3,7 +3,7 @@ import { Match } from '@atomist/rug/tree/PathExpression';
 import { EventHandler, Tags } from '@atomist/rug/operations/Decorators';
 import { Repo } from "@atomist/cortex/stub/Repo";
 
-@EventHandler("RepoNoticer", "does this work?", "/Repo()")
+@EventHandler("RepoNoticer", "does this work?", "/Repo()[/Label()]?")
 @Tags("repo")
 export class RepoNoticer implements HandleEvent<Repo, Repo> {
     handle(event: Match<Repo, Repo>): EventPlan {
