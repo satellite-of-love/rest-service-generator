@@ -1,4 +1,4 @@
-import { HandleCommand, HandlerContext, MappedParameters, ResponseMessage, Plan } from '@atomist/rug/operations/Handlers';
+import { HandleCommand, HandlerContext, MappedParameters, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
 import { CommandHandler, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators';
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 
@@ -43,14 +43,14 @@ export class AddRestEndpointPlease implements HandleCommand {
     })
     fieldType: string = "";
 
-    handle(command: HandlerContext): Plan {
+    handle(command: HandlerContext): CommandPlan {
         let edit = {
             instruction: { kind: "edit", name: "AddRestEndpoint", project: this.repo, parameters: this },
             onSuccess: new ResponseMessage(`I made a PR, you change it as you please.`)
         };
 
 
-        return new Plan().add(edit);
+        return new CommandPlan().add(edit);
     }
 }
 

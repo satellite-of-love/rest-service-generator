@@ -365,3 +365,16 @@ editor:
   parameters:
     - "component": "patch"
 
+---
+kind: "operation"
+client: "rug-cli 0.34.0"
+editor:
+  name: "UpgradeToRugs25"
+  group: "atomist"
+  artifact: "rug-editors"
+  version: "0.28.0"
+  origin:
+    repo: "git@github.com:atomist/rug-editors"
+    branch: "master"
+    sha: "bc0e2a7*"
+

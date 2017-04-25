@@ -1,4 +1,4 @@
-import { HandleCommand, Response, HandleResponse, MappedParameters,  HandlerContext, ResponseMessage, Respondable, Plan } from '@atomist/rug/operations/Handlers';
+import { HandleCommand, Response, HandleResponse, MappedParameters,  HandlerContext, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
 import { EventHandler, ResponseHandler, ParseJson, CommandHandler, Secrets, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators'
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import * as PlanUtils from '@atomist/rugs/operations/PlanUtils';
@@ -14,7 +14,7 @@ class DisableTravisBuild implements HandleCommand {
     @MappedParameter(MappedParameters.GITHUB_REPOSITORY)
     repo: string;
 
-    handle(command: HandlerContext): Plan {
+    handle(command: HandlerContext): CommandPlan {
         console.log(`We would like to turn on builds for ${this.repo}`);
 
         let executeTravisDisableRepo = PlanUtils.execute("travis-disable-repo",
@@ -27,7 +27,7 @@ class DisableTravisBuild implements HandleCommand {
         executeTravisDisableRepo.onSuccess = new ResponseMessage("OK! Goodbye travis build!");
 
         let message = new ResponseMessage(`Disabling travis build...`);
-        let plan = Plan.ofMessage(message);
+        let plan = CommandPlan.ofMessage(message);
         plan.add(executeTravisDisableRepo);
         return plan;
     }

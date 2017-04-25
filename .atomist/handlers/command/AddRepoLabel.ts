@@ -1,4 +1,4 @@
-import { HandleCommand, MappedParameters, Response, HandleResponse, HandlerContext, ResponseMessage, Respondable, Plan } from '@atomist/rug/operations/Handlers';
+import { HandleCommand, MappedParameters, Response, HandleResponse, HandlerContext, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
 import { EventHandler, ResponseHandler, ParseJson, CommandHandler, Secrets, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators'
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import * as PlanUtils from '@atomist/rugs/operations/PlanUtils';
@@ -24,8 +24,8 @@ class AddRepoLabel implements HandleCommand {
     @Parameter({ description: "GitHub repo color (hex)", pattern: "^#?[A-Fa-f0-9]{6}$" })
     color: string = "f29513";
 
-    handle(command: HandlerContext): Plan {
-        let plan = new Plan();
+    handle(command: HandlerContext): CommandPlan {
+        let plan = new CommandPlan();
 
         const base = `https://api.github.com/repos/${this.owner}/${this.repo}`;
 

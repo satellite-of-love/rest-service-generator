@@ -1,4 +1,4 @@
-import { HandleCommand, Response, HandleResponse, HandlerContext, ResponseMessage, Respondable, Plan } from '@atomist/rug/operations/Handlers';
+import { HandleCommand, Response, HandleResponse, HandlerContext, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
 import { EventHandler, ResponseHandler, ParseJson, CommandHandler, Secrets, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators'
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import * as PlanUtils from '@atomist/rugs/operations/PlanUtils';
@@ -25,7 +25,7 @@ class EnableTravisBuild implements HandleCommand {
     @Parameter(githubRepoParameter)
     repo: string;
 
-    handle(command: HandlerContext): Plan {
+    handle(command: HandlerContext): CommandPlan {
         console.log(`We would like to turn on builds for ${this.repo}`);
 
         let executeTravisEnableRepo = PlanUtils.execute("travis-enable-repo",
@@ -38,14 +38,14 @@ class EnableTravisBuild implements HandleCommand {
         let encryptGithubSecret = encryptInstruction(this.repo, `GITHUB_TOKEN=#{github://user_token?scopes=repo}`)
         encryptGithubSecret.onSuccess = ({ kind: "respond", name: "ReceiveGithubToken", parameters: { repo: this.repo } })
 
-        let encryptSecretsAndAddBuildFiles = new Plan();
+        let encryptSecretsAndAddBuildFiles = new CommandPlan();
         encryptSecretsAndAddBuildFiles.add(encryptGithubSecret);
         encryptSecretsAndAddBuildFiles.add(new ResponseMessage(`1: Enabled build for ${this.repo} on travis-ci.org`))
         executeTravisEnableRepo.onSuccess = encryptSecretsAndAddBuildFiles;
 
 
         let message = new ResponseMessage(`There are 5 steps to enabling a Travis build:`);
-        let plan = Plan.ofMessage(message);
+        let plan = CommandPlan.ofMessage(message);
         plan.add(executeTravisEnableRepo);
         return plan;
     }
@@ -72,8 +72,8 @@ class ReceiveGithubToken implements HandleResponse<any>{
     @Parameter(githubRepoParameter)
     repo: string;
 
-    handle(response: Response<string>, ): Plan {
-        let plan = Plan.ofMessage(new ResponseMessage("2: Encrypted Github Token for travis"));
+    handle(response: Response<string>, ): CommandPlan {
+        let plan = CommandPlan.ofMessage(new ResponseMessage("2: Encrypted Github Token for travis"));
         let encryptDockerToken = encryptInstruction(this.repo, `ATOMIST_REPO_TOKEN=#{secret://team?path=/docker/token}`)
         encryptDockerToken.onSuccess = ({
             kind: "respond", name: "ReceiveDockerToken",
@@ -103,9 +103,9 @@ class ReceiveDockerToken implements HandleResponse<any>{
     })
     encryptedGithubToken: string;
 
-    handle(response: Response<string>): Plan {
+    handle(response: Response<string>): CommandPlan {
         let encryptedDockerToken: string = response.body;
-        let plan = Plan.ofMessage(new ResponseMessage(`3: Encrypted Docker registry token for travis`));
+        let plan = CommandPlan.ofMessage(new ResponseMessage(`3: Encrypted Docker registry token for travis`));
         let encryptDockerUser = encryptInstruction(this.repo, `ATOMIST_REPO_USER=travis-docker`) // this is not exactly secret but we don't want it scrapeable from the .travis.yml
         encryptDockerUser.onSuccess = ({
             kind: "respond", name: "ReceiveDockerUser",
@@ -146,9 +146,9 @@ class ReceiveDockerUser implements HandleResponse<any>{
     })
     encryptedDockerToken: string;
 
-    handle(response: Response<string>): Plan {
+    handle(response: Response<string>): CommandPlan {
         let encryptedDockerUser: string = response.body
-        let plan = Plan.ofMessage(new ResponseMessage("4: Encrypted Docker token for Travis"));
+        let plan = CommandPlan.ofMessage(new ResponseMessage("4: Encrypted Docker token for Travis"));
         let editorName = "PrepareTravisBuildFiles";
         let editorParameters = {
             project: this.repo,
@@ -162,7 +162,7 @@ class ReceiveDockerUser implements HandleResponse<any>{
                 project: this.repo,
                 parameters: editorParameters
             },
-            onSuccess: Plan.ofMessage(new ResponseMessage("5: Added Travis build files to the repository. Please accept my PR!"))
+            onSuccess: CommandPlan.ofMessage(new ResponseMessage("5: Added Travis build files to the repository. Please accept my PR!"))
         }
         plan.add(prepareBuildFiles);
         return plan;

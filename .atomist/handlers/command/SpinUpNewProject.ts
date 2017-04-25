@@ -1,4 +1,4 @@
-import { HandleCommand, Response, HandleResponse, HandlerContext, ResponseMessage, Respondable, Plan, MappedParameters } from '@atomist/rug/operations/Handlers';
+import { HandleCommand, Response, HandleResponse, HandlerContext, ResponseMessage, CommandPlan, MappedParameters } from '@atomist/rug/operations/Handlers';
 import { EventHandler, ResponseHandler, ParseJson, CommandHandler, Secrets, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators'
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import * as PlanUtils from '@atomist/rugs/operations/PlanUtils';
@@ -36,14 +36,14 @@ export class SpinUpNewProject implements HandleCommand {
     })
     path: string;
 
-    handle(command: HandlerContext): Plan {
+    handle(command: HandlerContext): CommandPlan {
 
         if (this.path.match(/\/$/)) {
             // no trailing slash
             this.path = this.path.replace(/\/$/, "")
         }
 
-        let addDeploymentSpec: Respondable<any> = {
+        let addDeploymentSpec = {
             instruction: {
                 kind: "edit", name: "AddDeploymentSpec",
                 project: "atomist-k8-specs#satellite-of-love",
@@ -52,8 +52,8 @@ export class SpinUpNewProject implements HandleCommand {
                     path: this.path
                 }
             },
-            onSuccess: Plan.ofMessage(new ResponseMessage("I made a PR to atomist-k8-specs. Please merge this after the build works")),
-            onError: Plan.ofMessage(new ResponseMessage("Darn, the k8 edit didn't work"))
+            onSuccess: CommandPlan.ofMessage(new ResponseMessage("I made a PR to atomist-k8-specs. Please merge this after the build works")),
+            onError: CommandPlan.ofMessage(new ResponseMessage("Darn, the k8 edit didn't work"))
         };
 
         let enableTravisBuildHandler = new EnableTravisBuild();

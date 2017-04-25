@@ -1,4 +1,4 @@
-import { HandleCommand, MappedParameters, Response, HandleResponse, HandlerContext, ResponseMessage, Respondable, Plan } from '@atomist/rug/operations/Handlers';
+import { HandleCommand, MappedParameters, Response, HandleResponse, HandlerContext, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
 import { EventHandler, ResponseHandler, ParseJson, CommandHandler, Secrets, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators'
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import * as PlanUtils from '@atomist/rugs/operations/PlanUtils';
@@ -33,8 +33,8 @@ class AddStandardLabels implements HandleCommand {
     @MappedParameter(MappedParameters.GITHUB_REPO_OWNER)
     owner: string;
 
-    handle(command: HandlerContext): Plan {
-        let plan = new Plan();
+    handle(command: HandlerContext): CommandPlan {
+        let plan = new CommandPlan();
 
         standardLabels.forEach(sl => {
             let doThis = {
