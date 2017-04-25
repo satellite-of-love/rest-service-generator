@@ -22,7 +22,7 @@ export class AddRestEndpoint implements EditProject {
 
     @Parameter({
         displayName: "pojo field name",
-        description: "name of a field in your pojo, blank for none (or not a new pojo)",
+        description: "name of a field in your pojo",
         pattern: Pattern.java_identifier,
         validInput: "Java identifier",
         minLength: 1,
@@ -32,13 +32,13 @@ export class AddRestEndpoint implements EditProject {
 
     @Parameter({
         displayName: "pojo field type",
-        description: "type of that field in your pojo, blank for none (or not a new pojo)",
+        description: "type of that field in your pojo",
         pattern: Pattern.any,
         validInput: "Java type",
         minLength: 1,
         maxLength: 100
     })
-    fieldType: string;
+    fieldType: string = "String";
 
     edit(project: Project) {
         let { applicationClass, packageName } = this.whereIsTheApplication(project);
