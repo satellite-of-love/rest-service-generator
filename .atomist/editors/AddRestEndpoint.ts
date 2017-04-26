@@ -196,8 +196,11 @@ export class AddRestEndpoint implements EditProject {
         ).replace(
             /oneParam/g, requestParam
             ).replace(
-            /onePath/g, path).replace(
-            /OneEndpoint/g, returnedClass);
+            /onePath/g, path
+            ).replace(
+            /OneEndpoint/g, returnedClass
+            ).replace(
+            /oneEndpoint/, lowerReturnedClass);
 
         controllerFile.setContent(newContent);
     }
