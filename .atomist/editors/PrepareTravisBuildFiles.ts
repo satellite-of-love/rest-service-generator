@@ -45,30 +45,28 @@ export class PrepareTravisBuildFiles implements EditProject {
 
 		// .travis.yml
 		if (!project.fileExists(".travis.yml")) {
-			project.copyEditorBackingFileOrFailToDestination(".travis.yml", ".travis.yml");
+			project.copyEditorBackingFileOrFail(".travis.yml");
 		}
 
 		// replace all secrets
-		let travisContent = project.findFile(".travis.yml").content;
-		let newContent = travisContent.replace(
-			/^.*- secure:.*\n/g, "").replace(
+		let travisFile = project.findFile(".travis.yml");
+		let newContent = travisFile.content.replace(
+			/\n.*- secure: .*\n/g, "\n").replace(
 			"  global:",
 			`  global:
   - secure: ${this.encryptedDockerRegistryToken}
   - secure: ${this.encryptedDockerRegistryUser}
   - secure: ${this.encryptedGithubToken}`);
-
+        travisFile.setContent(newContent);
 
 		// docker
 		if (!project.fileExists("src/main/docker/Dockerfile")) {
-			project.copyEditorBackingFileOrFailToDestination("rest-service.Dockerfile", "src/main/docker/Dockerfile")
+			project.copyEditorBackingFileOrFail("src/main/docker/Dockerfile")
 		}
 
 		// build script
 		if (!project.fileExists("src/main/scripts/travis-build.bash")) {
-			project.copyEditorBackingFileOrFailToDestination(
-				"rest-service.travis-build.bash",
-				"src/main/scripts/travis-build.bash");
+			project.copyEditorBackingFileOrFail("src/main/scripts/travis-build.bash");
 		}
 
 		// update the POM
