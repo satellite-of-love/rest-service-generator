@@ -67,8 +67,8 @@ export function removeUnnecessaryFiles(project: Project): void {
         project.deleteDirectory(d);
     }
 
-
-    let toDelete: string[] = ["LICENSE", "CODE_OF_CONDUCT.md", ".travis.yml"];
+    let k8specsFiles = ["80-new-service-deployment.json", "60-new-service-svc.json"]
+    let toDelete: string[] = ["LICENSE", "CODE_OF_CONDUCT.md", ".travis.yml"].concat(k8specsFiles);
     for (let f of toDelete) {
         project.deleteFile(f);
     }

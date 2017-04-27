@@ -1,0 +1,59 @@
+{
+  "apiVersion" : "extensions/v1beta1",
+  "kind" : "Deployment",
+  "metadata" : {
+    "name" : "new-service"
+  },
+  "spec" : {
+    "replicas" : 1,
+    "revisionHistoryLimit" : 3,
+    "selector" : {
+      "matchLabels" : {
+        "app" : "new-service"
+      }
+    },
+    "template" : {
+      "metadata" : {
+        "name" : "new-service",
+        "labels" : {
+          "app" : "new-service"
+        },
+        "annotations" : {
+          "atomist.config" : "{}",
+          "atomist.updater" : "{sforzando-docker-dockerv2-local.artifactoryonline.com/new-service satellite-of-love/new-service}"
+        }
+      },
+      "spec" : {
+        "containers" : [ {
+          "name" : "new-service",
+          "image" : "sforzando-docker-dockerv2-local.artifactoryonline.com/new-service:0.1.0-SNAPSHOT",
+          "imagePullPolicy" : "Always",
+          "resources" : {
+            "limits" : {
+              "cpu" : 0.5,
+              "memory" : "512Mi"
+            },
+            "requests" : {
+              "cpu" : 0.1,
+              "memory" : "256Mi"
+            }
+          },
+          "env" : [],
+          "ports" : [ {
+            "containerPort" : 8080
+          } ]
+        } ],
+        "imagePullSecrets" : [ {
+          "name" : "atomistregistrykey"
+        } ]
+      }
+    },
+    "strategy" : {
+      "type" : "RollingUpdate",
+      "rollingUpdate" : {
+        "maxUnavailable" : 0,
+        "maxSurge" : 1
+      }
+    }
+  }
+}

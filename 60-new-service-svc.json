@@ -1,0 +1,28 @@
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "new-service",
+	"annotations": {
+	  "atomist.dnsmode" : "vanity",
+          "atomist.elb-service-name" : "kong",
+          "atomist.upstream_url" : "http://new-service:8080",
+          "atomist.vanity-name" : "survey.atomist.com",
+          "atomist.request_path": "/new-service-path"
+	}
+    },
+    "spec": {
+        "selector": {
+            "app": "new-service"
+        },
+        "ports": [
+            {
+                "name": "new-service",
+                "protocol": "TCP",
+                "port": 8080,
+                "targetPort": 8080
+            }
+        ]
+    }
+}
+ 
