@@ -172,6 +172,7 @@ class ReceiveDockerUser implements HandleResponse<any>{
 
 
 export { EnableTravisBuild }
+export const failer = new CommonHandlers.GenericErrorHandler();
 export const enableTravisBuild = new EnableTravisBuild();
 export const receiveGithubToken = new ReceiveGithubToken();
 export const receiveDockerToken = new ReceiveDockerToken();
