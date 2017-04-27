@@ -20,6 +20,10 @@
     "@atomist/rug" "0.26.1"
     mustache "^2.3.0"
 
+camelcase@jessitron/camelcase:
+  version "5.1.0"
+  resolved "https://codeload.github.com/jessitron/camelcase/tar.gz/21f98d3a03e13bc60c62ba3f73ba65a8892e21ef"
+
 mustache@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/mustache/-/mustache-2.3.0.tgz#4028f7778b17708a489930a6e52ac3bca0da41d0"

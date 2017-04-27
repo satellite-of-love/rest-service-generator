@@ -19,7 +19,7 @@ import { Project } from '@atomist/rug/model/Core';
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import { Generator, Parameter, Tags } from '@atomist/rug/operations/Decorators';
 import { File } from '@atomist/rug/model/File';
-
+import { camelCase } from 'camelcase/CamelCase';
 import { cleanReadMe, cleanChangeLog, removeUnnecessaryFiles, updatePom, movePackage, renameClass } from './RugGeneratorFunctions';
 
 /**
@@ -49,7 +49,7 @@ export class NewRestService implements PopulateProject {
 
     populate(project: Project) {
         let artifactId = project.name;
-        let serviceClassName = this.capitalise(this.camelCase(project.name));
+        let serviceClassName = this.capitalise(camelCase(project.name));
         cleanReadMe(project, this.description, this.groupId);
         cleanChangeLog(project, this.groupId);
         removeUnnecessaryFiles(project);
@@ -57,12 +57,6 @@ export class NewRestService implements PopulateProject {
         movePackage(project, "com.atomist.springrest", this.rootPackage);
         renameClass(project, "SpringRest", serviceClassName);
         project.deleteFile(".travis.yml")   // remove this which has encryption that only works in this repo
-    }
-
-    private camelCase(str: string) {
-        return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
-            return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-        }).replace(/[\s-_]+/g, '');
     }
 
     private capitalise(str: string) {
