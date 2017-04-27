@@ -43,7 +43,7 @@ class EnableTravisBuild implements HandleCommand {
         encryptSecretsAndAddBuildFiles.add(encryptGithubSecret);
         encryptSecretsAndAddBuildFiles.add(new ResponseMessage(`1: Enabled build for ${this.repo} on travis-ci.org`))
         executeTravisEnableRepo.onSuccess = encryptSecretsAndAddBuildFiles;
-        CommonHandlers.handleErrors(executeTravisEnableRepo, "Failure enabling build on Travis.")
+       // CommonHandlers.handleErrors(executeTravisEnableRepo, "Failure enabling build on Travis.")
 
         let message = new ResponseMessage(`There are 5 steps to enabling a Travis build:`);
         let plan = CommandPlan.ofMessage(message);
