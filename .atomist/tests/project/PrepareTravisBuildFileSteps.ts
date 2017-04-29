@@ -47,6 +47,10 @@ Then("the travis file contains the new secrets", (p, world) => {
 });
 
 Then("and only the new secrets", (p, world) => {
-    let matches = p.findFile(".travis.yml").content.match(/- secure:/);
-    return matches.length === 3;
+    let matches = p.findFile(".travis.yml").content.match(/- secure:/g);
+    let result = matches.length === 3;
+    if (!result) {
+        console.log(`TEST FAILURE: Found ${matches.length} secure keys`);
+    }
+    return result;
 });
