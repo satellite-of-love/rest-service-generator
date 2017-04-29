@@ -12,7 +12,7 @@ import { byExample } from "@atomist/rugs/util/tree/QueryByExample";
 export class RepoNoticer implements HandleEvent<Repo, Repo> {
     handle(event: Match<Repo, Repo>): EventPlan {
         let plan = new EventPlan();
-        let root: Repo = event.root();
+        let root: Repo = event.root;
         let message = new DirectedMessage(`A new ${root.nodeName()} has appeared: ${root.name} ${root.labels}`, new ChannelAddress("general"));
         plan.add(message)
         plan.add(addLabelInstruction(root.owner, root.name, "in-progress", ""))
