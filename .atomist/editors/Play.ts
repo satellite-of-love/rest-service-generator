@@ -25,9 +25,11 @@ export class Play implements EditProject {
         }
 
         let pxe = project.context.pathExpressionEngine;
+        let found: string;
 
         try {
-            pxe.with<RichTextTreeNode>(fileOfInterest, "/JavaFile()", top => {
+            let grammarPX = "/JavaFile()"
+            pxe.with<RichTextTreeNode>(fileOfInterest, grammarPX, top => {
                 console.log(`Found top-level node: ${top.nodeName()} at ${stringifyFormatInfo(top.formatInfo)}`); // TODO: ask Rod - why is that still a function?
 
                 let nodeToRetrieve: TextTreeNode = smallestNodeThatContains([positionOfInterest, endPositionOfInterest], top.children() as TextTreeNode[]);
@@ -37,21 +39,28 @@ export class Play implements EditProject {
                 console.log(`Here is some interior node: ${identifyingNode.value()}  
                    at ${stringifyFormatInfo(identifyingNode.formatInfo)}
                    with outer address ${outerAddress}`);
-                
+
                 let innerAddress = TreeHelper.findPathFromAncestor(identifyingNode, n => { return sameNode(n, nodeToRetrieve) })
                 console.log(`and inner address ${innerAddress}`)
-                // console.log(`Does it contain ${JSON.stringify(positionOfInterest)}? ${contains(positionOfInterest, someNode)}`);
 
-                // let upOne = someNode.parent() as TextTreeNode;
-                // (upOne.children() as TextTreeNode[]).forEach(c => {
-                //     console.log(`A child of the parent: ${c.nodeName()} = ${c.value()} `)
-                // })
+                found = `${grammarPX}${outerAddress}[${innerAddress}[@value='${identifyingNode.value()}']]`;
+                console.log(`Try this path expression:
+                ${found}`);
 
             });
         }
         catch (e) {
             console.log(`problem: ${e}`);
             // e.printStackTrace();
+        }
+
+        if(found != null) {
+            let result = pxe.evaluate(fileOfInterest, found);
+            result.matches.forEach(m => {
+                let t = m as TextTreeNode;
+                console.log(`Here is a match: 
+                ${t.value()}`)
+            })
         }
 
     }
