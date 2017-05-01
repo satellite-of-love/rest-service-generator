@@ -13,7 +13,9 @@ import * as TreeHelper from '@atomist/rug/tree/TreeHelper';
 export class Play implements EditProject {
 
     edit(project: Project) {
-        let positionOfInterest: Position = { line: 25, column: 17, };
+        let positionOfInterest: Position = { line: 24, column: 6, };
+        let endPositionOfInterest: Position = { line: 37, column: 1};
+        
         let filepathOfInterest = "src/test/java/com/atomist/springrest/addrestendpoint/OneEndpointWebIntegrationTests.java";
         let fileOfInterest = project.findFile(filepathOfInterest);
         if (fileOfInterest == null) {
@@ -24,12 +26,12 @@ export class Play implements EditProject {
 
         try {
             pxe.with<RichTextTreeNode>(fileOfInterest, "/JavaFile()", top => {
-                console.log(`Found top-level node: ${top.nodeName()}`); // TODO: ask Rod - why is that still a function?
+                console.log(`Found top-level node: ${top.nodeName()} at ${stringifyFormatInfo(top.formatInfo)}`); // TODO: ask Rod - why is that still a function?
 
-                let someNode: TextTreeNode = smallestNodeThatContains(positionOfInterest, top.children() as TextTreeNode[]);
+                let someNode: TextTreeNode = smallestNodeThatContains([positionOfInterest, endPositionOfInterest], top.children() as TextTreeNode[]);
                  
                  let address = TreeHelper.findPathFromAncestor(someNode, tn => {return tn.nodeName() === "compilationUnit"});
-                 console.log(`Here is some interior node: ${TreeHelper.stringify(someNode)} 
+                 console.log(`Here is some interior node: ${someNode.value()} 
                  at ${stringifyFormatInfo(someNode.formatInfo)}
                  with address ${address}`);
                  console.log(`Does it contain ${JSON.stringify(positionOfInterest)}? ${contains(positionOfInterest, someNode)}`);
@@ -37,7 +39,7 @@ export class Play implements EditProject {
         }
         catch (e) {
             console.log(`problem: ${e}`);
-            e.printStackTrace();
+            // e.printStackTrace();
         }
 
     }
@@ -51,12 +53,14 @@ function stringifyFormatInfo(pfi: FormatInfo): string {
 
 interface Position { line: number, column: number }
 
-function smallestNodeThatContains(pos: Position, nodes: TextTreeNode[]): TextTreeNode {
-    let c = nodes.filter(n => contains(pos, n))
-    if (c.length < 1) throw `no node contained it`
+function smallestNodeThatContains(pos: Position[], nodes: TextTreeNode[]): TextTreeNode {
+    let c = nodes.filter(n => pos.every(p => contains(p, n)));
+    if (c.length < 1) return null;
     let containing = c[0];
     if (containing.children().length == 0) return containing;
-    return smallestNodeThatContains(pos, containing.children() as TextTreeNode[])
+    let nextSmallest = smallestNodeThatContains(pos, containing.children() as TextTreeNode[])
+    if (nextSmallest == null) return containing;
+    return nextSmallest;
 }
 
 function after(start: PointFormatInfo, here: Position): boolean {
