@@ -5,7 +5,7 @@ import { Pattern } from '@atomist/rug/operations/RugOperation';
 import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
 import * as RugGeneratorFunctions from '../generators/RugGeneratorFunctions';
 import { RichTextTreeNode } from '@atomist/rug/ast/TextTreeNodeOps';
-import { TextTreeNode, PointFormatInfo } from '@atomist/rug/tree/PathExpression';
+import { TextTreeNode, PointFormatInfo, FormatInfo } from '@atomist/rug/tree/PathExpression';
 import * as TreeHelper from '@atomist/rug/tree/TreeHelper';
 
 @Editor("Play", "learn about editors")
@@ -27,20 +27,26 @@ export class Play implements EditProject {
                 console.log(`Found top-level node: ${top.nodeName()}`); // TODO: ask Rod - why is that still a function?
 
                 let someNode: TextTreeNode = smallestNodeThatContains(positionOfInterest, top.children() as TextTreeNode[]);
-
-                 console.log(`Here is some interior node: ${TreeHelper.stringify(someNode)} at ${someNode.formatInfo}`);
-
-
+                 
+                 let address = TreeHelper.findPathFromAncestor(someNode, tn => {return tn.nodeName() === "compilationUnit"});
+                 console.log(`Here is some interior node: ${TreeHelper.stringify(someNode)} 
+                 at ${stringifyFormatInfo(someNode.formatInfo)}
+                 with address ${address}`);
                  console.log(`Does it contain ${JSON.stringify(positionOfInterest)}? ${contains(positionOfInterest, someNode)}`);
-                
-
             });
         }
         catch (e) {
             console.log(`problem: ${e}`);
+            e.printStackTrace();
         }
 
     }
+}
+
+function stringifyFormatInfo(pfi: FormatInfo): string {
+
+    return `[${pfi.start.lineNumberFrom1},${pfi.start.columnNumberFrom1}]-[${pfi.end.lineNumberFrom1},${pfi.end.columnNumberFrom1}]`
+
 }
 
 interface Position { line: number, column: number }
