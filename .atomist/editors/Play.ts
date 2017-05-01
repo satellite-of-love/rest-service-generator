@@ -14,8 +14,10 @@ export class Play implements EditProject {
 
     edit(project: Project) {
         let positionOfInterest: Position = { line: 24, column: 6, };
-        let endPositionOfInterest: Position = { line: 37, column: 1};
-        
+        let endPositionOfInterest: Position = { line: 37, column: 1 };
+
+        let identifierPosition: Position = { line: 25, column: 17 }
+
         let filepathOfInterest = "src/test/java/com/atomist/springrest/addrestendpoint/OneEndpointWebIntegrationTests.java";
         let fileOfInterest = project.findFile(filepathOfInterest);
         if (fileOfInterest == null) {
@@ -28,13 +30,23 @@ export class Play implements EditProject {
             pxe.with<RichTextTreeNode>(fileOfInterest, "/JavaFile()", top => {
                 console.log(`Found top-level node: ${top.nodeName()} at ${stringifyFormatInfo(top.formatInfo)}`); // TODO: ask Rod - why is that still a function?
 
-                let someNode: TextTreeNode = smallestNodeThatContains([positionOfInterest, endPositionOfInterest], top.children() as TextTreeNode[]);
-                 
-                 let address = TreeHelper.findPathFromAncestor(someNode, tn => {return tn.nodeName() === "compilationUnit"});
-                 console.log(`Here is some interior node: ${someNode.value()} 
-                 at ${stringifyFormatInfo(someNode.formatInfo)}
-                 with address ${address}`);
-                 console.log(`Does it contain ${JSON.stringify(positionOfInterest)}? ${contains(positionOfInterest, someNode)}`);
+                let nodeToRetrieve: TextTreeNode = smallestNodeThatContains([positionOfInterest, endPositionOfInterest], top.children() as TextTreeNode[]);
+                let outerAddress = TreeHelper.findPathFromAncestor(nodeToRetrieve, tn => { return tn.nodeName() === top.nodeName() });
+
+                let identifyingNode = smallestNodeThatContains([identifierPosition], nodeToRetrieve.children() as TextTreeNode[]);
+                console.log(`Here is some interior node: ${identifyingNode.value()}  
+                   at ${stringifyFormatInfo(identifyingNode.formatInfo)}
+                   with outer address ${outerAddress}`);
+                
+                let innerAddress = TreeHelper.findPathFromAncestor(identifyingNode, n => { return sameNode(n, nodeToRetrieve) })
+                console.log(`and inner address ${innerAddress}`)
+                // console.log(`Does it contain ${JSON.stringify(positionOfInterest)}? ${contains(positionOfInterest, someNode)}`);
+
+                // let upOne = someNode.parent() as TextTreeNode;
+                // (upOne.children() as TextTreeNode[]).forEach(c => {
+                //     console.log(`A child of the parent: ${c.nodeName()} = ${c.value()} `)
+                // })
+
             });
         }
         catch (e) {
@@ -43,6 +55,20 @@ export class Play implements EditProject {
         }
 
     }
+}
+
+function samePointFormatInfo(pfi1: FormatInfo, pfi2: FormatInfo) {
+    if (pfi1.start.offset != pfi2.start.offset) return false;
+    if (pfi1.end.offset != pfi2.end.offset) return false;
+    return true;
+}
+
+function sameNode(n1: TextTreeNode, n2: TextTreeNode) {
+    // Rod: what's a better way to identify the relevant ancestor node?
+    if (!samePointFormatInfo(n1.formatInfo, n2.formatInfo)) return false;
+    if (n1.nodeName() !== n2.nodeName()) return false;
+    return true;
+
 }
 
 function stringifyFormatInfo(pfi: FormatInfo): string {
@@ -77,7 +103,7 @@ function before(end: PointFormatInfo, here: Position): boolean {
     return true;
 }
 function contains(pos: Position, node: TextTreeNode): boolean {
-   return after(node.formatInfo.start, pos) && before(node.formatInfo.end, pos);
+    return after(node.formatInfo.start, pos) && before(node.formatInfo.end, pos);
 }
 
 export const play = new Play();
