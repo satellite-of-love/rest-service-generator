@@ -138,7 +138,7 @@ export class AddRestEndpoint implements EditProject {
         project.copyEditorBackingFileOrFail(sourceFilename);
 
         let methodOfInterestMatches = project.context.pathExpressionEngine.evaluate(project.findFile(sourceFilename),
-            `/JavaFile()/typeDeclaration/classDeclaration/normalClassDeclaration/classBody/classBodyDeclaration/classMemberDeclaration/methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='oneEndpointTest']]`)
+            `/JavaFile()//methodDeclaration[/methodHeader//Identifier[@value='oneEndpointTest']]`)
         if (methodOfInterestMatches.matches.length < 1) {
             console.log("Dang! Did not find the method!");
         } else {
