@@ -134,7 +134,18 @@ export class AddRestEndpoint implements EditProject {
             return;
         }
 
-        project.copyEditorBackingFileOrFail('src/test/java/com/atomist/springrest/addrestendpoint/OneEndpointWebIntegrationTests.java');
+        let sourceFilename = 'src/test/java/com/atomist/springrest/addrestendpoint/OneEndpointWebIntegrationTests.java';
+        project.copyEditorBackingFileOrFail(sourceFilename);
+
+        let methodOfInterestMatches = project.context.pathExpressionEngine.evaluate(project.findFile(sourceFilename),
+            `/JavaFile()/typeDeclaration/classDeclaration/normalClassDeclaration/classBody/classBodyDeclaration/classMemberDeclaration/methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='oneEndpointTest']]`)
+        if (methodOfInterestMatches.matches.length < 1) {
+            console.log("Dang! Did not find the method!");
+        } else {
+            let methodText = (methodOfInterestMatches.matches[0] as RichTextTreeNode).value();
+            console.log(`Here is the method text: ${methodText}`)
+        }
+
         RugGeneratorFunctions.movePackage(project, 'com.atomist.springrest.addrestendpoint', packageName);
         RugGeneratorFunctions.renameClass(project, 'OneEndpointWebIntegrationTests', returnedClass + "WebIntegrationTests");
 
