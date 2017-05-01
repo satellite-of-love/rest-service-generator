@@ -43,8 +43,8 @@ export class AddRestEndpoint implements EditProject {
     edit(project: Project) {
         let { applicationClass, packageName } = this.whereIsTheApplication(project);
         console.log(`Application is ${packageName}.${applicationClass}`)
-        let sourceLocation = "src/main/java/com/jessitron" // WRONG
-        let testLocation = "src/test/java/com/jessitron" // WRONG
+        let sourceLocation = "src/main/java/com/jessitron" // hard-coded; please calculate
+        let testLocation = "src/test/java/com/jessitron" // hard-coded; please calculate
         let lowerReturnedClass = this.uncapitalise(this.returnedClass);
         let path = lowerReturnedClass;
         let returnedClass = this.returnedClass;

@@ -48,7 +48,7 @@ export class NewRestService implements PopulateProject {
     rootPackage: string = "com.jessitron";
 
     populate(project: Project) {
-        let artifactId = project.name;
+        let artifactId = project.name.toLowerCase();
         let serviceClassName = this.capitalise(camelCase(project.name));
         cleanReadMe(project, this.description, this.groupId);
         cleanChangeLog(project, this.groupId);
@@ -56,8 +56,7 @@ export class NewRestService implements PopulateProject {
         updatePom(project, artifactId, this.groupId, this.version, this.description);
         movePackage(project, "com.atomist.springrest", this.rootPackage);
         renameClass(project, "SpringRest", serviceClassName);
-        project.deleteFile(".travis.yml")   // remove this which has encryption that only works in this repo
-    }
+     }
 
     private capitalise(str: string) {
         return (str.substr(0, 1).toUpperCase() + str.substr(1));
