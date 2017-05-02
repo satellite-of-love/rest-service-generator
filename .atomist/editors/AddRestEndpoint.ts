@@ -4,7 +4,8 @@ import { File } from '@atomist/rug/model/File';
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import { Editor, Parameter, Tags } from '@atomist/rug/operations/Decorators';
 import * as RugGeneratorFunctions from '../generators/RugGeneratorFunctions';
-import { RichTextTreeNode } from '@atomist/rug/ast/TextTreeNodeOps'
+import { RichTextTreeNode } from '@atomist/rug/ast/TextTreeNodeOps';
+import { PathExpressionEngine } from '@atomist/rug/tree/PathExpression'
 
 @Editor("AddRestEndpoint", "add an endpoint to return a POJO")
 @Tags("spring", "satellite-of-love", "jess")
@@ -128,15 +129,17 @@ export class AddRestEndpoint implements EditProject {
     private addIntegrationTest(project: Project, returnedClass: string, packageName: string,
         testLocation: string, requestParam: string, path: string, lowerReturnedClass: string,
         fieldName: string, fieldType: string, applicationClass: string) {
+        let applicationWebIntegrationTestsFileName = testLocation + `/${applicationClass.replace("Application", "WebIntegrationTests")}.java`
+
         let fileName = testLocation + `/${returnedClass}WebIntegrationTests.java`;
         if (project.fileExists(fileName)) {
-            console.log("An integration test file exists already; TODO add a method to it");
-            return;
+            throw `test file ${fileName} already exists. This is not handled`;
         }
 
         project.copyEditorBackingFileOrFail('src/test/java/com/atomist/springrest/addrestendpoint/OneEndpointWebIntegrationTests.java');
         RugGeneratorFunctions.movePackage(project, 'com.atomist.springrest.addrestendpoint', packageName);
         RugGeneratorFunctions.renameClass(project, 'OneEndpointWebIntegrationTests', returnedClass + "WebIntegrationTests");
+
 
         let testFile = project.findFile(fileName);
         if (testFile == null) {
@@ -167,6 +170,50 @@ export class AddRestEndpoint implements EditProject {
 
         testFile.setContent(newContents);
 
+
+        if (project.fileExists(applicationWebIntegrationTestsFileName)) {
+            console.log("Moving test method into application WebIntegrationTests");
+            const destinationFile = project.findFile(applicationWebIntegrationTestsFileName);
+            this.moveMethod(project.context.pathExpressionEngine, lowerReturnedClass + "Test", testFile, destinationFile);
+            this.addImport(project.context.pathExpressionEngine, packageName + "." + returnedClass, destinationFile)
+            project.deleteFile(fileName);
+        } else {
+            console.log(`Leaving test independent, since ${applicationWebIntegrationTestsFileName} does not exist`);
+        }
+    }
+
+    private addImport(pxe: PathExpressionEngine, classToImport: string, destinationFile: File) {
+        const allImports = pxe.evaluate(destinationFile, "/JavaFile()/importDeclaration");
+        const lastImport = allImports.matches[allImports.matches.length - 1] as RichTextTreeNode;
+        lastImport.update(lastImport.value() + "\n" + `import ${classToImport};`);
+    }
+
+    private moveMethod(pxe: PathExpressionEngine, methodName: string, sourceFile: File, destinationFile: File) {
+        let sourceNode;
+        try {
+            // sourceNode = pxe.scalar<File, any>(sourceFile, `/JavaType()//methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='${methodName}']]`)
+            sourceNode = pxe.scalar<File, any>(sourceFile, `/JavaFile()/typeDeclaration/classDeclaration/normalClassDeclaration/classBody/classBodyDeclaration/classMemberDeclaration/methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='peelTest']]`);
+            if (sourceNode == null) {
+                throw `Didn't find method ${methodName} in ${sourceFile.name}`;
+            }
+        } catch (e) {
+            throw `Didn't find method ${methodName} in ${sourceFile.name}: ${e.getMessage()}`;
+        }
+
+        const destinationNode = pxe.scalar<File, any>(destinationFile, "/JavaFile()/typeDeclaration/classDeclaration/normalClassDeclaration")
+        if (destinationNode == null) {
+            throw `Didn't find a class in ${destinationFile.name}. WAT`;
+        }
+
+        let classText = destinationNode.value();
+        const lastChar = classText.substr(classText.length - 1, 1)
+        if (lastChar !== "}") {
+            throw `expected curly brace but it ends in <${lastChar}>`
+        }
+        const beforeLastChar = classText.substr(0, classText.length - 1);
+
+        let newClassText = beforeLastChar + "\n" + sourceNode.value() + lastChar;
+        destinationNode.update(newClassText);
     }
 
     private addController(project: Project, sourceLocation: string, returnedClass: string,
