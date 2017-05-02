@@ -558,3 +558,16 @@ editor:
   parameters:
     - "component": "patch"
 
+---
+kind: "operation"
+client: "atomist-bot"
+editor:
+  name: "RestrictCORS"
+  group: "satellite-of-love"
+  artifact: "rest-service-generator"
+  version: "1.1.1"
+  origin:
+    repo: "git@github.com:satellite-of-love/workflow-rugs"
+    branch: "jess/what-am-i-doing"
+    sha: "751452c"
+
