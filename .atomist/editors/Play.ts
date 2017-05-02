@@ -18,33 +18,35 @@ export class Play implements EditProject {
 
         let identifierPosition: Position = { line: 25, column: 17 }
 
+        let grammarPX = "/JavaFile()"
+
         let filepathOfInterest = "src/test/java/com/atomist/springrest/addrestendpoint/OneEndpointWebIntegrationTests.java";
         let fileOfInterest = project.findFile(filepathOfInterest);
         if (fileOfInterest == null) {
             throw `File not found: ${filepathOfInterest}`;
         }
 
+        console.log(`Seeking a path expression that will extract (at least) positions ` + 
+        `${stringifyPosition(positionOfInterest)}-${stringifyPosition(endPositionOfInterest)} from ${filepathOfInterest}` + 
+        `, qualified on the value including ${stringifyPosition(identifierPosition)}`);
+
         let pxe = project.context.pathExpressionEngine;
         let found: string;
 
         try {
-            let grammarPX = "/JavaFile()"
             pxe.with<RichTextTreeNode>(fileOfInterest, grammarPX, top => {
-                console.log(`Found top-level node: ${top.nodeName()} at ${stringifyFormatInfo(top.formatInfo)}`); // TODO: ask Rod - why is that still a function?
-
+            
                 let nodeToRetrieve: TextTreeNode = smallestNodeThatContains([positionOfInterest, endPositionOfInterest], top.children() as TextTreeNode[]);
                 let outerAddress = TreeHelper.findPathFromAncestor(nodeToRetrieve, tn => { return tn.nodeName() === top.nodeName() });
 
                 let identifyingNode = smallestNodeThatContains([identifierPosition], nodeToRetrieve.children() as TextTreeNode[]);
-                console.log(`Here is some interior node: ${identifyingNode.value()}  
-                   at ${stringifyFormatInfo(identifyingNode.formatInfo)}
-                   with outer address ${outerAddress}`);
+               // console.log(`The identifying node is called ${identifyingNode.nodeName()}, with value ${identifyingNode.value()}`);
 
                 let innerAddress = TreeHelper.findPathFromAncestor(identifyingNode, n => { return sameNode(n, nodeToRetrieve) })
-                console.log(`and inner address ${innerAddress}`)
+               // console.log(`and inner address ${innerAddress}`)
 
                 found = `${grammarPX}${outerAddress}[${innerAddress}[@value='${identifyingNode.value()}']]`;
-                console.log(`Try this path expression:
+                console.log(`This path expression:
                 ${found}`);
 
             });
@@ -58,8 +60,7 @@ export class Play implements EditProject {
             let result = pxe.evaluate(fileOfInterest, found);
             result.matches.forEach(m => {
                 let t = m as TextTreeNode;
-                console.log(`Here is a match: 
-                ${t.value()}`)
+                console.log("yields: \n" + t.value());
             })
         }
 
@@ -81,12 +82,14 @@ function sameNode(n1: TextTreeNode, n2: TextTreeNode) {
 }
 
 function stringifyFormatInfo(pfi: FormatInfo): string {
-
-    return `[${pfi.start.lineNumberFrom1},${pfi.start.columnNumberFrom1}]-[${pfi.end.lineNumberFrom1},${pfi.end.columnNumberFrom1}]`
-
+    return `[${pfi.start.lineNumberFrom1},${pfi.start.columnNumberFrom1}]-[${pfi.end.lineNumberFrom1},${pfi.end.columnNumberFrom1}]`;
 }
 
 interface Position { line: number, column: number }
+
+function stringifyPosition(pfi: Position): string {
+    return `[${pfi.line},${pfi.column}]`;
+}
 
 function smallestNodeThatContains(pos: Position[], nodes: TextTreeNode[]): TextTreeNode {
     let c = nodes.filter(n => pos.every(p => contains(p, n)));
