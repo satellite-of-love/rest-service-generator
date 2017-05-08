@@ -13,39 +13,43 @@ import * as TreeHelper from '@atomist/rug/tree/TreeHelper';
 export class Play implements EditProject {
 
     edit(project: Project) {
-        let positionOfInterest: Position = { line: 24, column: 6, };
-        let endPositionOfInterest: Position = { line: 37, column: 1 };
+        let positionOfInterest: Position = { line: 22, column: 4, };
+        let endPositionOfInterest: Position = { line: 28, column: 5 };
 
-        let identifierPosition: Position = { line: 25, column: 17 }
+        let identifierPosition: Position = { line: 23, column: 20 }
 
         let grammarPX = "/JavaFile()"
 
-        let filepathOfInterest = "src/test/java/com/atomist/springrest/addrestendpoint/OneEndpointWebIntegrationTests.java";
+        let filepathOfInterest = "banana/src/test/java/com/jessitron/PeelWebIntegrationTests.java";
         let fileOfInterest = project.findFile(filepathOfInterest);
         if (fileOfInterest == null) {
             throw `File not found: ${filepathOfInterest}`;
         }
 
-        console.log(`Seeking a path expression that will extract (at least) positions ` + 
-        `${stringifyPosition(positionOfInterest)}-${stringifyPosition(endPositionOfInterest)} from ${filepathOfInterest}` + 
-        `, qualified on the value including ${stringifyPosition(identifierPosition)}`);
+        console.log(`Seeking a path expression that will extract (at least) positions ` +
+            `${stringifyPosition(positionOfInterest)}-${stringifyPosition(endPositionOfInterest)} from ${filepathOfInterest}` +
+            `, qualified on the value including ${stringifyPosition(identifierPosition)}`);
 
         let pxe = project.context.pathExpressionEngine;
         let found: string;
 
         try {
             pxe.with<RichTextTreeNode>(fileOfInterest, grammarPX, top => {
-            
+
                 let nodeToRetrieve: TextTreeNode = smallestNodeThatContains([positionOfInterest, endPositionOfInterest], top.children() as TextTreeNode[]);
                 let outerAddress = TreeHelper.findPathFromAncestor(nodeToRetrieve, tn => { return tn.nodeName() === top.nodeName() });
 
                 let identifyingNode = smallestNodeThatContains([identifierPosition], nodeToRetrieve.children() as TextTreeNode[]);
-               // console.log(`The identifying node is called ${identifyingNode.nodeName()}, with value ${identifyingNode.value()}`);
+                // console.log(`The identifying node is called ${identifyingNode.nodeName()}, with value ${identifyingNode.value()}`);
 
-                let innerAddress = TreeHelper.findPathFromAncestor(identifyingNode, n => { return sameNode(n, nodeToRetrieve) })
-               // console.log(`and inner address ${innerAddress}`)
-
-                found = `${grammarPX}${outerAddress}[${innerAddress}[@value='${identifyingNode.value()}']]`;
+                let found;
+                if (identifyingNode === nodeToRetrieve) {
+                    found = `${grammarPX}${outerAddress}[@value='${identifyingNode.value()}']`;
+                } else {
+                    let innerAddress = TreeHelper.findPathFromAncestor(identifyingNode, n => { return sameNode(n, nodeToRetrieve) })
+                    // console.log(`and inner address ${innerAddress}`)
+                    found = `${grammarPX}${outerAddress}[${innerAddress}[@value='${identifyingNode.value()}']]`;
+                }
                 console.log(`This path expression:
                 ${found}`);
 
@@ -56,7 +60,7 @@ export class Play implements EditProject {
             // e.printStackTrace();
         }
 
-        if(found != null) {
+        if (found != null) {
             let result = pxe.evaluate(fileOfInterest, found);
             result.matches.forEach(m => {
                 let t = m as TextTreeNode;
