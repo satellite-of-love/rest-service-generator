@@ -1,0 +1,34 @@
+---
+kind: "operation"
+client: "rug-cli 1.0.0-m.2"
+generator:
+  name: "NewRestService"
+  group: "satellite-of-love"
+  artifact: "rest-service-generator"
+  version: "1.2.2"
+  origin:
+    repo: "git@github.com:satellite-of-love/rest-service-generator"
+    branch: "master"
+    sha: "9095179*"
+  parameters:
+    - "description": "Mystery Project"
+
+---
+kind: "operation"
+client: "rug-cli 1.0.0-m.2"
+editor:
+  name: "AddRestEndpoint"
+  group: "satellite-of-love"
+  artifact: "rest-service-generator"
+  version: "1.2.2"
+  origin:
+    repo: "git@github.com:satellite-of-love/rest-service-generator"
+    branch: "master"
+    sha: "9095179*"
+  parameters:
+    - "repo": "bana"
+    - "returnedClass": "Mush"
+    - "fieldName": "squich"
+    - "fieldType": "String"
+    - "handle": "{}"
+
