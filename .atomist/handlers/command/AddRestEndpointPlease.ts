@@ -1,4 +1,4 @@
-import { HandleCommand, HandlerContext, MappedParameters, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
+import { HandleCommand, HandlerContext, MappedParameters, GitHubPullRequest, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
 import { CommandHandler, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators';
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import * as CommonHandlers from "@atomist/rugs/operations/CommonHandlers";
@@ -46,11 +46,9 @@ export class AddRestEndpointPlease implements HandleCommand {
 
     handle(command: HandlerContext): CommandPlan {
         const branchName = `add-${this.returnedClass}-endpoint`
-        const pr = {
-            title: `Add a new endpoint to return a ${this.returnedClass}`,
-            headBranch: branchName,
-            kind: "github-pull-request"
-        };
+        const pr = new GitHubPullRequest();
+        pr.title = `Add a new endpoint to return a ${this.returnedClass}`;
+        pr.headBranch = branchName;
 
         let edit = CommonHandlers.wrap({
             instruction: {
