@@ -8,13 +8,14 @@ import { Impact } from "@atomist/rug/model/Impact";
 /**
  * From a push, make an editor.
  */
-@EventHandler("CreateEditorOnPush", "From a push, make an editor", "/Push()")
+@EventHandler("CreateEditorOnPush", "From a push, make an editor", "/Push()/with::Impact")
 @Tags("documentation")
-export class CreateEditorOnPush implements HandleEvent<Push, Push> {
-    public handle(event: Match<Push, Push>): EventPlan {
+export class CreateEditorOnPush implements HandleEvent<Push, Impact> {
+    public handle(event: Match<Push, Impact>): EventPlan {
         const root: Push = event.root;
+        const impact = event.matches[0]
 
-        const impact = event.pathExpressionEngine.scalar<Push, Impact>(root, "/with::Impact()")
+        //const impact = event.pathExpressionEngine.scalar<Push, Impact>(root, "/with::Impact()")
 
         const filesChanged = impact.changed.files.map(f => f.path).join("\n")
         const message = new DirectedMessage(`${root.nodeName()} event received.
