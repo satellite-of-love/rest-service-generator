@@ -194,7 +194,7 @@ export class AddRestEndpoint implements EditProject {
             sourceNode = pxe.scalar<File, any>(sourceFile, `/JavaFile()//methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='${methodName}']]`)
             // sourceNode = pxe.scalar<File, any>(sourceFile, `/JavaFile()/typeDeclaration/classDeclaration/normalClassDeclaration/classBody/classBodyDeclaration/classMemberDeclaration/methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='peelTest']]`);
             if (sourceNode == null) {
-                throw `Didn't find method ${methodName} in ${sourceFile.name}`;
+                throw `Didn't find method ${methodName} in ${sourceFile.name}. Contents are: ${sourceFile.content}`;
             }
         } catch (e) {
             throw `Didn't find method ${methodName} in ${sourceFile.name}: ${e.getMessage()}`;

@@ -1,6 +1,7 @@
 import { HandleCommand, HandlerContext, MappedParameters, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
 import { CommandHandler, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators';
 import { Pattern } from '@atomist/rug/operations/RugOperation';
+import * as CommonHandlers from "@atomist/rugs/operations/CommonHandlers";
 
 /**
  * A run an editor to add a REST endpoint to this project.
@@ -44,10 +45,9 @@ export class AddRestEndpointPlease implements HandleCommand {
     fieldType: string = "";
 
     handle(command: HandlerContext): CommandPlan {
-        let edit = {
+        let edit = CommonHandlers.wrap({
             instruction: { kind: "edit", name: "AddRestEndpoint", project: this.repo, parameters: this },
-            onSuccess: new ResponseMessage(`I made a PR, you change it as you please.`)
-        };
+        }, `I made a PR, you change it as you please.`);
 
 
         return new CommandPlan().add(edit);
