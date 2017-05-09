@@ -2,7 +2,7 @@ import { HandleCommand, MappedParameters, Response, HandleResponse, HandlerConte
 import { EventHandler, ResponseHandler, ParseJson, CommandHandler, Secrets, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators'
 import { Pattern } from '@atomist/rug/operations/RugOperation';
 import * as PlanUtils from '@atomist/rugs/operations/PlanUtils';
-import { handleErrors, GenericErrorHandler } from '@atomist/rugs/operations/CommonHandlers';
+import { handleErrors } from '@atomist/rugs/operations/CommonHandlers';
 
 
 const standardLabels = [
@@ -47,7 +47,7 @@ class AddStandardLabels implements HandleCommand {
                         owner: this.owner
                     }
                 }
-               //,  onError: new ResponseMessage("whoops " + sl.name + " didn't work")
+                //,  onError: new ResponseMessage("whoops " + sl.name + " didn't work")
             };
             handleErrors(doThis, { msg: `Tried to add label ${sl.name}` });
             plan.add(new ResponseMessage("Adding label " + sl.name));
@@ -59,5 +59,4 @@ class AddStandardLabels implements HandleCommand {
 
 }
 
-export const errorHandler = new GenericErrorHandler();
 export const addStandardLabels = new AddStandardLabels();
