@@ -191,8 +191,8 @@ export class AddRestEndpoint implements EditProject {
     private moveMethod(pxe: PathExpressionEngine, methodName: string, sourceFile: File, destinationFile: File) {
         let sourceNode;
         try {
-            // sourceNode = pxe.scalar<File, any>(sourceFile, `/JavaType()//methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='${methodName}']]`)
-            sourceNode = pxe.scalar<File, any>(sourceFile, `/JavaFile()/typeDeclaration/classDeclaration/normalClassDeclaration/classBody/classBodyDeclaration/classMemberDeclaration/methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='peelTest']]`);
+            sourceNode = pxe.scalar<File, any>(sourceFile, `/JavaFile()//methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='${methodName}']]`)
+            // sourceNode = pxe.scalar<File, any>(sourceFile, `/JavaFile()/typeDeclaration/classDeclaration/normalClassDeclaration/classBody/classBodyDeclaration/classMemberDeclaration/methodDeclaration[/methodHeader/methodDeclarator/Identifier[@value='peelTest']]`);
             if (sourceNode == null) {
                 throw `Didn't find method ${methodName} in ${sourceFile.name}`;
             }
