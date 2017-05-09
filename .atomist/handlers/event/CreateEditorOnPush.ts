@@ -8,12 +8,12 @@ import { Impact } from "@atomist/rug/model/Impact";
 /**
  * From a push, make an editor.
  */
-@EventHandler("CreateEditorOnPush", "From a push, make an editor", "/Push()")
+@EventHandler("CreateEditorOnPush", "From a push, make an editor", "/Push()[/after::Commit()][/before::Commit()]")
 @Tags("documentation")
 export class CreateEditorOnPush implements HandleEvent<Push, Impact> {
     public handle(event: Match<Push, Impact>): EventPlan {
         const root: Push = event.root;
-        //const impact = event.matches[0]
+        console.log(`The push has ${root.after} and ${root.before} on ${root.branch}`)
 
         const impact = event.pathExpressionEngine.scalar<Push, Impact>(root, "/with::Impact()")
 
