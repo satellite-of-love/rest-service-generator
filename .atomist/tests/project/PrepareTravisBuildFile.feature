@@ -24,5 +24,4 @@ Feature: PrepareTravisBuildFiles editor should create travis build files
     When PrepareTravisBuild is called on a new rest service
     Then the travis file exists
     Then the travis file contains the new secrets
-    Then and only the new secrets
  
