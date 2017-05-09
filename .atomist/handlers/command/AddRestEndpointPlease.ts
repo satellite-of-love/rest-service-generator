@@ -45,10 +45,20 @@ export class AddRestEndpointPlease implements HandleCommand {
     fieldType: string = "";
 
     handle(command: HandlerContext): CommandPlan {
-        let edit = CommonHandlers.wrap({
-            instruction: { kind: "edit", name: "AddRestEndpoint", project: this.repo, parameters: this },
-        }, `I made a PR, you change it as you please.`);
+        const branchName = `add-${this.returnedClass}-endpoint`
+        const pr = {
+            title: `Add a new endpoint to return a ${this.returnedClass}`,
+            headBranch: branchName,
+            kind: "github-pull-request"
+        };
 
+        let edit = CommonHandlers.wrap({
+            instruction: {
+                kind: "edit", name: "AddRestEndpoint",
+                project: this.repo, parameters: this,
+                target: pr
+            },
+        }, `I made a PR. Check out ${branchName} to work on it`);
 
         return new CommandPlan().add(edit);
     }
