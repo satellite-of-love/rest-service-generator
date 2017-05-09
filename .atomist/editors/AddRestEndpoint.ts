@@ -212,7 +212,7 @@ export class AddRestEndpoint implements EditProject {
         }
         const beforeLastChar = classText.substr(0, classText.length - 1);
 
-        let newClassText = beforeLastChar + "\n" + sourceNode.value() + lastChar;
+        let newClassText = beforeLastChar + "\n" + sourceNode.value() + "\n" + lastChar;
         destinationNode.update(newClassText);
     }
 
