@@ -574,3 +574,20 @@ editor:
     - "editorName": "AddEditorFromCommitScript"
     - "description": "Make a new editor, which does things in the script"
 
+---
+kind: "operation"
+client: "rug-cli 1.0.0-m.1"
+editor:
+  name: "AddTypeScriptEventHandler"
+  group: "atomist"
+  artifact: "rug-rugs"
+  version: "0.30.0-20170505141840"
+  origin:
+    repo: "https://github.com/atomist/rug-rugs.git"
+    branch: "30015d9d112ed4783cbf27ca3d3cd438eedaa045"
+    sha: "30015d9"
+  parameters:
+    - "handlerName": "CreateEditorOnPush"
+    - "description": "From a push, make an editor"
+    - "pathExpression": "/Push()"
+
