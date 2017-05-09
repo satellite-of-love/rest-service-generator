@@ -1,7 +1,7 @@
 group: satellite-of-love
 artifact: rest-service-generator
-version: "1.1.1"
-requires: "[1.0.0-m.2,2.0.0)"
+version: "1.2.1"
+requires: "[1.0.0-m.3,2.0.0)"
 dependencies:
 extensions:
   - com.atomist.rug:rug-functions-travis:[0.12.0,1.0.0)
