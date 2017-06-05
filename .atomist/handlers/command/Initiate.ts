@@ -1,5 +1,5 @@
 import {
-    CommandHandler, Intent, MappedParameter, Parameter, Tags,
+    CommandHandler, Intent, MappedParameter, Parameter, Secrets, Tags,
 } from "@atomist/rug/operations/Decorators";
 import {
     ChannelAddress, CommandPlan, DirectedMessage,
@@ -12,6 +12,7 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
  */
 @CommandHandler("Initiate", "generate and spin up a new REST service")
 @Tags("documentation")
+@Secrets("secret://team?path=github_token")
 @Intent("initiate creation sequence")
 export class Initiate implements HandleCommand {
 
@@ -53,6 +54,11 @@ export class Initiate implements HandleCommand {
         // Create the repo on GitHub. After that, enable the Travis build.
         // And create a PR for atomist-k8-specs
         const plan = new CommandPlan();
+
+        const plan2 = new CommandPlan();
+        plan2.add(new ResponseMessage("Attempting to add a label"));
+        plan2.add(labelInstruction(this.owner, this.projectName));
+
         plan.add({
             instruction: {
                 kind: "generate",
@@ -64,6 +70,7 @@ export class Initiate implements HandleCommand {
                     correlationId: this.correlationId, // is this necessary?
                     visibility: "public",
                 },
+                onSuccess: plan2,
             },
         });
         plan.add({
@@ -75,14 +82,41 @@ export class Initiate implements HandleCommand {
                     userId: this.userId,
                 },
                 onSuccess:
-                new DirectedMessage(
+                CommandPlan.ofMessage(new DirectedMessage(
                     `Ask atomist to "spin me up" to get this project into Travis`,
-                    new ChannelAddress(this.projectName)),
+                    new ChannelAddress(this.projectName))),
             },
         });
         plan.add(new ResponseMessage(`Creating a new repo called ${this.projectName}`));
         return plan;
     }
+}
+
+function labelInstruction(owner: string, repo: string, labelName = "active", labelColor = "#ff2348") {
+
+    const base = `https://api.github.com/repos/${owner}/${repo}`;
+
+    return {
+        instruction: {
+            kind: "execute",
+            name: "http",
+            parameters: {
+                url: `${base}/labels`,
+                method: "post",
+                config: {
+                    body: JSON.stringify({
+                        name: labelName,
+                        color: labelColor,
+                    }),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `token #{secret://team?path=github_token}`,
+                    },
+                },
+            },
+        }
+        , onSuccess: new DirectedMessage("Added label " + labelName, new ChannelAddress(repo)),
+    };
 }
 
 export const initiate = new Initiate();
