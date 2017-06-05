@@ -56,8 +56,8 @@ export class Initiate implements HandleCommand {
         const plan = new CommandPlan();
 
         const plan2 = new CommandPlan();
-        plan2.add(new ResponseMessage("Attempting to add a label"));
-        plan2.add(labelInstruction(this.owner, this.projectName));
+        // plan2.add(new ResponseMessage("Attempting to add a label"));
+        // plan2.add(labelInstruction(this.owner, this.projectName));
 
         plan.add({
             instruction: {

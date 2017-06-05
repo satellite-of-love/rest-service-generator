@@ -9,7 +9,7 @@ import { Match } from "@atomist/rug/tree/PathExpression";
 import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 import { byExample } from "@atomist/rugs/util/tree/QueryByExample";
 
-@EventHandler("RepoNoticer", "does this work?", "/Repo()/Labels()")
+@EventHandler("RepoNoticer", "does this work?", "/Repo()/labels::Label()")
 @Tags("repo")
 @Secrets("secret://team?path=github_token")
 export class RepoNoticer implements HandleEvent<Repo, Repo> {
