@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { PopulateProject } from '@atomist/rug/operations/ProjectGenerator';
-import { Project } from '@atomist/rug/model/Core';
-import { Pattern } from '@atomist/rug/operations/RugOperation';
-import { Generator, Parameter, Tags } from '@atomist/rug/operations/Decorators';
-import { File } from '@atomist/rug/model/File';
-import { camelCase } from 'camelcase/CamelCase';
-import { cleanReadMe, cleanChangeLog, removeUnnecessaryFiles, updatePom, movePackage, renameClass } from './RugGeneratorFunctions';
+import { Project } from "@atomist/rug/model/Core";
+import { File } from "@atomist/rug/model/File";
+import { Generator, Parameter, Tags } from "@atomist/rug/operations/Decorators";
+import { PopulateProject } from "@atomist/rug/operations/ProjectGenerator";
+import { Pattern } from "@atomist/rug/operations/RugOperation";
+import { camelCase } from "camelcase/CamelCase";
+import { cleanChangeLog, cleanReadMe, movePackage, removeUnnecessaryFiles, renameClass, updatePom } from "./RugGeneratorFunctions";
 
 /**
  * Atomist Rug generator for creating a new Spring Boot REST service
@@ -30,9 +30,9 @@ import { cleanReadMe, cleanChangeLog, removeUnnecessaryFiles, updatePom, movePac
 @Tags("java", "satellite-of-love")
 export class NewRestService implements PopulateProject {
 
-    groupId: string = "satellite-of-love";
+    public groupId: string = "satellite-of-love";
 
-    version: string = "1.0.0-SNAPSHOT";
+    public version: string = "1.0.0-SNAPSHOT";
 
     @Parameter({
         displayName: "Project Description",
@@ -41,22 +41,22 @@ export class NewRestService implements PopulateProject {
         validInput: "free text",
         minLength: 1,
         maxLength: 100,
-        required: false
+        required: false,
     })
-    description: string = "Mystery Project"
+    public description: string = "Mystery Project";
 
-    rootPackage: string = "com.jessitron";
+    public rootPackage: string = "com.jessitron";
 
-    populate(project: Project) {
-        let artifactId = project.name.toLowerCase();
-        let serviceClassName = this.capitalise(camelCase(project.name));
+    public populate(project: Project) {
+        const artifactId = project.name.toLowerCase();
+        const serviceClassName = this.capitalise(camelCase(project.name));
         cleanReadMe(project, this.description, this.groupId);
         cleanChangeLog(project, this.groupId);
         removeUnnecessaryFiles(project);
         updatePom(project, artifactId, this.groupId, this.version, this.description);
         movePackage(project, "com.atomist.springrest", this.rootPackage);
         renameClass(project, "SpringRest", serviceClassName);
-     }
+    }
 
     private capitalise(str: string) {
         return (str.substr(0, 1).toUpperCase() + str.substr(1));

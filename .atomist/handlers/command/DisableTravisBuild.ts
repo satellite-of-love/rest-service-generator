@@ -1,9 +1,13 @@
-import { HandleCommand, Response, HandleResponse, MappedParameters,  HandlerContext, ResponseMessage, CommandPlan } from '@atomist/rug/operations/Handlers';
-import { EventHandler, ResponseHandler, ParseJson, CommandHandler, Secrets, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators'
-import { Pattern } from '@atomist/rug/operations/RugOperation';
-import * as PlanUtils from '@atomist/rugs/operations/PlanUtils';
-
-
+import {
+    CommandHandler, EventHandler, Intent,
+    MappedParameter, Parameter, ParseJson, ResponseHandler, Secrets, Tags,
+} from "@atomist/rug/operations/Decorators";
+import {
+    CommandPlan, HandleCommand, HandlerContext,
+    HandleResponse, MappedParameters, Response, ResponseMessage,
+} from "@atomist/rug/operations/Handlers";
+import { Pattern } from "@atomist/rug/operations/RugOperation";
+import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 
 @CommandHandler("DisableTravisBuild", "Turn on a build in Travis, and set up a REST build")
 @Tags("travis")
@@ -17,21 +21,20 @@ class DisableTravisBuild implements HandleCommand {
     handle(command: HandlerContext): CommandPlan {
         console.log(`We would like to turn on builds for ${this.repo}`);
 
-        let executeTravisDisableRepo = PlanUtils.execute("travis-disable-repo",
+        const executeTravisDisableRepo = PlanUtils.execute("travis-disable-repo",
             {
                 repo: this.repo,
                 owner: "satellite-of-love",
-                org: ".org"
-            }
+                org: ".org",
+            },
         );
         executeTravisDisableRepo.onSuccess = new ResponseMessage("OK! Goodbye travis build!");
 
-        let message = new ResponseMessage(`Disabling travis build...`);
-        let plan = CommandPlan.ofMessage(message);
+        const message = new ResponseMessage(`Disabling travis build...`);
+        const plan = CommandPlan.ofMessage(message);
         plan.add(executeTravisDisableRepo);
         return plan;
     }
-
 
 }
 
