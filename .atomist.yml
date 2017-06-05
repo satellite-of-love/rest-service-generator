@@ -661,3 +661,21 @@ editor:
     branch: "894b141b3e1662c99b5ad5d50431389ddb6cddd2"
     sha: "894b141"
 
+---
+kind: "operation"
+client: "com.atomist:rug"
+version: "1.0.1-JESS"
+editor:
+  name: "AddTypeScriptCommandHandler"
+  group: "atomist"
+  artifact: "rug-rugs"
+  version: "0.31.0-20170601202105"
+  origin:
+    repo: "https://github.com/atomist/rug-rugs.git"
+    branch: "d1145f3450f22af598a278ccc475eb18f3c0f5e4"
+    sha: "d1145f3"
+  parameters:
+    - "handlerName": "Initiate"
+    - "description": "generate and spin up a new REST service"
+    - "intent": "create rest service"
+
