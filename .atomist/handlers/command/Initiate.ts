@@ -12,7 +12,7 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
  */
 @CommandHandler("Initiate", "generate and spin up a new REST service")
 @Tags("documentation")
-@Secrets("secret://team?path=github_token")
+// @Secrets("secret://team?path=github_token")
 @Intent("initiate creation sequence")
 export class Initiate implements HandleCommand {
 
