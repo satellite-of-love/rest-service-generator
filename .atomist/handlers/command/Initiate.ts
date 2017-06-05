@@ -70,7 +70,7 @@ export class Initiate implements HandleCommand {
                     correlationId: this.correlationId, // is this necessary?
                     visibility: "public",
                 },
-                onSuccess: plan2,
+                //     onSuccess: plan2,
             },
         });
         plan.add({
