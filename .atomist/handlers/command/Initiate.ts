@@ -2,8 +2,8 @@ import {
     CommandHandler, Intent, MappedParameter, Parameter, Tags,
 } from "@atomist/rug/operations/Decorators";
 import {
-    CommandPlan, HandleCommand, HandlerContext,
-    MappedParameters, ResponseMessage,
+    ChannelAddress, CommandPlan, DirectedMessage,
+    HandleCommand, HandlerContext, MappedParameters, ResponseMessage,
 } from "@atomist/rug/operations/Handlers";
 import { Pattern } from "@atomist/rug/operations/RugOperation";
 
@@ -12,7 +12,7 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
  */
 @CommandHandler("Initiate", "generate and spin up a new REST service")
 @Tags("documentation")
-@Intent("create rest service")
+@Intent("initiate creation sequence")
 export class Initiate implements HandleCommand {
 
     @Parameter({
@@ -74,6 +74,10 @@ export class Initiate implements HandleCommand {
                     project: this.projectName,
                     userId: this.userId,
                 },
+                onSuccess:
+                new DirectedMessage(
+                    `Ask atomist to "spin me up" to get this project into Travis`,
+                    new ChannelAddress(this.projectName)),
             },
         });
         plan.add(new ResponseMessage(`Creating a new repo called ${this.projectName}`));
