@@ -3,5 +3,24 @@
     "@atomist/rugs": "^1.0.0-m.5",
     "@atomist/slack-messages": "^0.6.0",
     "camelcase": "github:jessitron/camelcase"
+  },
+  "name": "@satellite-of-love/rest-service-generator",
+  "version": "1.9.0",
+  "author": "satellite-of-love",
+  "description": "Atomist Rugs from satellite-of-love/rest-service-generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/satellite-of-love/rest-service-generator.git"
+  },
+  "homepage": "https://github.com/satellite-of-love/rest-service-generator#readme",
+  "bugs": {
+    "url": "https://github.com/satellite-of-love/rest-service-generator/issues"
+  },
+  "atomist": {
+    "requires": "[1.0.0-m.4,2.0.0)",
+    "extensions": {
+      "com.atomist.rug:rug-functions-travis": "[0.12.0,1.0.0)",
+      "com.atomist.rug:rug-function-http": "[0.7.0,1.0.0)"
+    }
   }
 }
