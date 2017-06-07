@@ -81,10 +81,10 @@ export class Initiate implements HandleCommand {
                     project: this.projectName,
                     userId: this.userId,
                 },
-                onSuccess:
-                CommandPlan.ofMessage(new DirectedMessage(
-                    `Ask atomist to "spin me up" to get this project into Travis`,
-                    new ChannelAddress(this.projectName))),
+                // onSuccess:
+                // CommandPlan.ofMessage(new DirectedMessage(
+                //     `Ask atomist to "spin me up" to get this project into Travis`,
+                //     new ChannelAddress(this.projectName))),
             },
         });
         plan.add(new ResponseMessage(`Creating a new repo called ${this.projectName}`));
