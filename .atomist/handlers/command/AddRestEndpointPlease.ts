@@ -32,7 +32,7 @@ export class AddRestEndpointPlease implements HandleCommand {
         minLength: 1,
         maxLength: 100
     })
-    fieldName: string = "";
+    fieldName: string;
 
     @Parameter({
         displayName: "pojo field type",
@@ -42,7 +42,7 @@ export class AddRestEndpointPlease implements HandleCommand {
         minLength: 1,
         maxLength: 100
     })
-    fieldType: string = "";
+    fieldType: string;
 
     handle(command: HandlerContext): CommandPlan {
         const branchName = `add-${this.returnedClass}-endpoint`
