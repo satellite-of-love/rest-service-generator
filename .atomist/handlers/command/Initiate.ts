@@ -56,8 +56,8 @@ export class Initiate implements HandleCommand {
         const plan = new CommandPlan();
 
         const plan2 = new CommandPlan();
-        // plan2.add(new ResponseMessage("Attempting to add a label"));
-        // plan2.add(labelInstruction(this.owner, this.projectName));
+        plan2.add(new ResponseMessage("Attempting to add a label"));
+        plan2.add(labelInstruction(this.owner, this.projectName));
 
         plan.add({
             instruction: {
@@ -70,7 +70,7 @@ export class Initiate implements HandleCommand {
                     correlationId: this.correlationId, // is this necessary?
                     visibility: "public",
                 },
-                //     onSuccess: plan2,
+                onSuccess: plan2,
             },
         });
         plan.add({
@@ -81,10 +81,10 @@ export class Initiate implements HandleCommand {
                     project: this.projectName,
                     userId: this.userId,
                 },
-                // onSuccess:
-                // CommandPlan.ofMessage(new DirectedMessage(
-                //     `Ask atomist to "spin me up" to get this project into Travis`,
-                //     new ChannelAddress(this.projectName))),
+                onSuccess:
+                CommandPlan.ofMessage(new DirectedMessage(
+                    `Say \`@atomist spin me up\` to get this project building and into prod`,
+                    new ChannelAddress(this.projectName))),
             },
         });
         plan.add(new ResponseMessage(`Creating a new repo called ${this.projectName}`));
