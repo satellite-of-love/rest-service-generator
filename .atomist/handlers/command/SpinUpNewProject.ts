@@ -1,22 +1,25 @@
 import {
-    HandleCommand, Response, HandleResponse, HandlerContext,
-    ResponseMessage, CommandPlan, MappedParameters,
-    GitHubPullRequest
-} from '@atomist/rug/operations/Handlers';
-import { EventHandler, ResponseHandler, ParseJson, CommandHandler, Secrets, MappedParameter, Parameter, Tags, Intent } from '@atomist/rug/operations/Decorators'
-import { Pattern } from '@atomist/rug/operations/RugOperation';
-import * as PlanUtils from '@atomist/rugs/operations/PlanUtils';
-import { EnableTravisBuild } from './EnableTravisBuild';
+    CommandHandler, EventHandler, Intent, MappedParameter,
+    Parameter, ParseJson, ResponseHandler, Secrets, Tags,
+} from "@atomist/rug/operations/Decorators";
+import {
+    CommandPlan, GitHubPullRequest, HandleCommand, HandlerContext,
+    HandleResponse, MappedParameters, Response,
+    ResponseMessage,
+} from "@atomist/rug/operations/Handlers";
+import { Pattern } from "@atomist/rug/operations/RugOperation";
+import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
+import * as DescribePerson from "./DescribePerson";
+import { EnableTravisBuild } from "./EnableTravisBuild";
 
-
-let githubRepoParameter = {
+const githubRepoParameter = {
     displayName: "github repository",
     description: "a repository to enable builds on",
     pattern: Pattern.any,
     validInput: "repo name",
     minLength: 1,
-    maxLength: 100
-}
+    maxLength: 100,
+};
 
 /**
  * A sample Rug TypeScript command handler.
@@ -28,7 +31,10 @@ let githubRepoParameter = {
 export class SpinUpNewProject implements HandleCommand {
 
     @MappedParameter(MappedParameters.GITHUB_REPOSITORY)
-    repo: string;
+    public repo: string;
+
+    @MappedParameter(MappedParameters.SLACK_USER)
+    public user: string;
 
     @Parameter({
         pattern: Pattern.any,
@@ -36,46 +42,57 @@ export class SpinUpNewProject implements HandleCommand {
         minLength: 1,
         maxLength: 100,
         displayName: "path from survey.atomist.com/ to this service",
-        description: "url portion"
+        description: "url portion",
     })
-    path: string;
+    public path: string;
 
-    handle(command: HandlerContext): CommandPlan {
+    public handle(context: HandlerContext): CommandPlan {
 
         if (this.path.match(/\/$/)) {
             // no trailing slash
-            this.path = this.path.replace(/\/$/, "")
+            this.path = this.path.replace(/\/$/, "");
         }
 
-        let addDeploymentSpec = {
+        const addDeploymentSpec = {
             instruction: {
                 kind: "edit", name: "AddDeploymentSpec",
                 project: "atomist-k8-specs#satellite-of-love",
                 parameters: {
                     service: this.repo,
-                    path: this.path
+                    path: this.path,
                 },
-                target: this.pr(this.repo, this.path)
+                target: this.pr(this.repo, this.path),
+                commitMessage: this.commitMessage(context, this.user, this.repo),
             },
             onSuccess: CommandPlan.ofMessage(
                 new ResponseMessage("I made a PR to atomist-k8-specs. Please merge this after the build is set up")),
             onError: CommandPlan.ofMessage(
-                new ResponseMessage("Darn, the k8 edit didn't work"))
+                new ResponseMessage("Darn, the k8 edit didn't work")),
         };
 
-        let enableTravisBuildHandler = new EnableTravisBuild();
+        const enableTravisBuildHandler = new EnableTravisBuild();
         enableTravisBuildHandler.repo = this.repo;
 
-        let plan = enableTravisBuildHandler.handle(command);
+        const plan = enableTravisBuildHandler.handle(context);
         plan.add(
-            new ResponseMessage(`Oh goodie, I am going to make ${this.repo} have a Travis build and a deployment spec`))
-        plan.add(addDeploymentSpec)
+            new ResponseMessage(
+                `Oh goodie, I am going to make ${this.repo} have a Travis build and a deployment spec`));
+        plan.add(addDeploymentSpec);
 
         return plan;
 
     }
 
-    pr(projectName, path): GitHubPullRequest {
+    private commitMessage(context: HandlerContext, user: string, projectName: string): string {
+        const person = DescribePerson.describePerson(
+            context.pathExpressionEngine, context.contextRoot, user);
+
+        return `Add deploy spec for service ${projectName}
+
+Commit by atomist, triggered by ${DescribePerson.identifyOnGitHub(person)}`;
+    }
+
+    private pr(projectName, path): GitHubPullRequest {
         const pr = new GitHubPullRequest();
         pr.title = `Deploy new service ${projectName} at /${path}`;
         pr.body = `Once you merge this, ${projectName} will deploy at its next successful Travis build`;
@@ -83,4 +100,4 @@ export class SpinUpNewProject implements HandleCommand {
     }
 }
 
-export const spinUpNewProject = new SpinUpNewProject()
+export const spinUpNewProject = new SpinUpNewProject();
