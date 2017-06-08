@@ -56,6 +56,7 @@ export class Initiate implements HandleCommand {
         const plan = new CommandPlan();
 
         const plan2 = new CommandPlan();
+        plan2.add(new DirectedMessage("label attempt in progress", new ChannelAddress("general")));
         plan2.add(new ResponseMessage("Attempting to add a label"));
         plan2.add(labelInstruction(this.owner, this.projectName));
 
@@ -82,9 +83,9 @@ export class Initiate implements HandleCommand {
                     userId: this.userId,
                 },
                 onSuccess:
-                CommandPlan.ofMessage(new DirectedMessage(
+                new DirectedMessage(
                     `Say \`@atomist spin me up\` to get this project building and into prod`,
-                    new ChannelAddress(this.projectName))),
+                    new ChannelAddress(this.projectName)),
             },
         });
         plan.add(new ResponseMessage(`Creating a new repo called ${this.projectName}`));
