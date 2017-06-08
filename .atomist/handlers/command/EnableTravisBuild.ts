@@ -37,7 +37,7 @@ const githubRepoParameter = {
 @CommandHandler("EnableTravisBuild", "Turn on a build in Travis, and set up a REST build")
 @Tags("travis", "satellite-of-love")
 @Intent("run EnableTravisBuild")
-@Secrets("github://user_token?scopes=repo", "secret://team?path=/docker/token")
+@Secrets("github://user_token?scopes=repo,read:org,user:email", "secret://team?path=/docker/token")
 class EnableTravisBuild implements HandleCommand {
 
     @Parameter(githubRepoParameter)
