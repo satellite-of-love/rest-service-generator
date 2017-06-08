@@ -14,10 +14,11 @@ import {
     HandleCommand,
     HandlerContext,
     HandleResponse,
+    MappedParameters,
     Response,
     ResponseMessage,
 } from "@atomist/rug/operations/Handlers";
-import {Pattern} from "@atomist/rug/operations/RugOperation";
+import { Pattern } from "@atomist/rug/operations/RugOperation";
 import * as CommonHandlers from "@atomist/rugs/operations/CommonHandlers";
 import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 
@@ -42,22 +43,25 @@ class EnableTravisBuild implements HandleCommand {
     @Parameter(githubRepoParameter)
     public repo: string;
 
+    @MappedParameter("atomist://correlation_id")
+    private corrid: string;
+
     public handle(command: HandlerContext): CommandPlan {
         console.log(`We would like to turn on builds for ${this.repo}`);
 
-        const executeTravisEnableRepo = PlanUtils.execute("travis-enable-repo",
+        const executeTravisEnableRepo = CommonHandlers.handleErrors(PlanUtils.execute("travis-enable-repo",
             {
                 repo: this.repo,
                 owner: "satellite-of-love",
                 org: ".org",
-            },
-        );
-        const encryptGithubSecret = encryptInstruction(this.repo, `GITHUB_TOKEN=#{github://user_token?scopes=repo}`);
+            }), { msg: "Grrr", corrid: this.corrid });
+        const encryptGithubSecret =
+            encryptInstruction(this.repo, `GITHUB_TOKEN=#{github://user_token?scopes=repo}`);
         encryptGithubSecret.onSuccess = (
             {
                 kind: "respond",
                 name: "ReceiveGithubToken",
-                parameters: {repo: this.repo},
+                parameters: { repo: this.repo },
             });
 
         const encryptSecretsAndAddBuildFiles = new CommandPlan();
@@ -69,6 +73,7 @@ class EnableTravisBuild implements HandleCommand {
         const message = new ResponseMessage(`There are 5 steps to enabling a Travis build:`);
         const plan = CommandPlan.ofMessage(message);
         plan.add(executeTravisEnableRepo);
+        console.log("OK, here's the plan: " + JSON.stringify(plan))
         return plan;
     }
 
@@ -93,7 +98,8 @@ class ReceiveGithubToken implements HandleResponse<any> {
     public repo: string;
 
     public handle(response: Response<string>): CommandPlan {
-        const plan = CommandPlan.ofMessage(new ResponseMessage("2: Encrypted Github Token for travis"));
+        const plan = CommandPlan.ofMessage(
+            new ResponseMessage("2: Encrypted Github Token for travis"));
         const encryptDockerToken = encryptInstruction(this.repo,
             `ATOMIST_REPO_TOKEN=#{secret://team?path=/docker/token}`);
         encryptDockerToken.onSuccess = ({
@@ -192,7 +198,7 @@ class ReceiveDockerUser implements HandleResponse<any> {
     }
 }
 
-export {EnableTravisBuild};
+export { EnableTravisBuild };
 export const enableTravisBuild = new EnableTravisBuild();
 export const receiveGithubToken = new ReceiveGithubToken();
 export const receiveDockerToken = new ReceiveDockerToken();
