@@ -56,7 +56,7 @@ class EnableTravisBuild implements HandleCommand {
                 org: ".org",
             }), { msg: "Grrr", corrid: this.corrid });
         const encryptGithubSecret =
-            encryptInstruction(this.repo, `GITHUB_TOKEN=#{github://user_token?scopes=repo}`);
+            encryptInstruction(this.repo, `GITHUB_TOKEN=#{github://user_token?scopes=repo,read:org,user:email}`);
         encryptGithubSecret.onSuccess = (
             {
                 kind: "respond",
@@ -91,7 +91,7 @@ function encryptInstruction(repo: string, content: string) {
 }
 
 @ResponseHandler("ReceiveGithubToken", "step 2")
-@Secrets("github://user_token?scopes=repo", "secret://team?path=/docker/token")
+@Secrets("github://user_token?scopes=repo,read:org,user:email", "secret://team?path=/docker/token")
 class ReceiveGithubToken implements HandleResponse<any> {
 
     @Parameter(githubRepoParameter)
@@ -115,14 +115,14 @@ class ReceiveGithubToken implements HandleResponse<any> {
 }
 
 @ResponseHandler("ReceiveDockerToken", "step 3")
-@Secrets("github://user_token?scopes=repo")
+@Secrets("github://user_token?scopes=repo,read:org,user:email")
 class ReceiveDockerToken implements HandleResponse<any> {
     @Parameter(githubRepoParameter)
     public repo: string;
 
     @Parameter({
         displayName: "don't display this",
-        description: "an encrypted githubn token to stick in a Travis file",
+        description: "an encrypted github token to stick in a Travis file",
         pattern: Pattern.any,
         validInput: "long string of nonsense",
         minLength: 1,
@@ -149,7 +149,7 @@ class ReceiveDockerToken implements HandleResponse<any> {
 }
 
 @ResponseHandler("ReceiveDockerUser", "step 4")
-@Secrets("github://user_token?scopes=repo")
+@Secrets("github://user_token?scopes=repo,read:org,user:email")
 class ReceiveDockerUser implements HandleResponse<any> {
     @Parameter(githubRepoParameter)
     public repo: string;
