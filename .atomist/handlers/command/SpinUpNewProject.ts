@@ -75,10 +75,11 @@ export class SpinUpNewProject implements HandleCommand {
 
     }
 
-    pr(projectName, path) {
+    pr(projectName, path): GitHubPullRequest {
         const pr = new GitHubPullRequest();
         pr.title = `Deploy new service ${projectName} at /${path}`;
         pr.body = `Once you merge this, ${projectName} will deploy at its next successful Travis build`;
+        return pr;
     }
 }
 
