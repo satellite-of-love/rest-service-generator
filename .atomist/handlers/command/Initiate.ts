@@ -72,6 +72,7 @@ export class Initiate implements HandleCommand {
                     visibility: "public",
                 },
                 onSuccess: plan2,
+                onError: new ResponseMessage("OMG I failed"),
             },
         });
         plan.add({

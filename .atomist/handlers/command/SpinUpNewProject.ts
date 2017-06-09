@@ -93,9 +93,10 @@ Commit by atomist, triggered by ${DescribePerson.identifyOnGitHub(person)}`;
     }
 
     private pr(projectName, path): GitHubPullRequest {
-        const pr = new GitHubPullRequest();
+        const pr = new GitHubPullRequest("satellite-of-love");
         pr.title = `Deploy new service ${projectName} at /${path}`;
         pr.body = `Once you merge this, ${projectName} will deploy at its next successful Travis build`;
+        pr.headBranch = `spin-up-${projectName}`;
         return pr;
     }
 }

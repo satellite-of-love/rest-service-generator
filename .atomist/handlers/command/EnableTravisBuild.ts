@@ -11,6 +11,7 @@ import {
 } from "@atomist/rug/operations/Decorators";
 import {
     CommandPlan,
+    GitHubPullRequest,
     HandleCommand,
     HandlerContext,
     HandleResponse,
@@ -73,7 +74,7 @@ class EnableTravisBuild implements HandleCommand {
         const message = new ResponseMessage(`There are 5 steps to enabling a Travis build:`);
         const plan = CommandPlan.ofMessage(message);
         plan.add(executeTravisEnableRepo);
-        console.log("OK, here's the plan: " + JSON.stringify(plan))
+        console.log("OK, here's the plan: " + JSON.stringify(plan));
         return plan;
     }
 
@@ -190,11 +191,24 @@ class ReceiveDockerUser implements HandleResponse<any> {
                 project: this.repo,
                 parameters: editorParameters,
             },
+            target: this.pr(this.repo, this.path),
+            commitMessage: this.commitMessage(),
             onSuccess: CommandPlan.ofMessage(
                 new ResponseMessage("5: Added Travis build files to the repository. Please accept my PR!")),
         };
         plan.add(prepareBuildFiles);
         return plan;
+    }
+
+    private commitMessage(): string {
+        return `Add Travis build configuration`;
+    }
+
+    private pr(projectName, path): GitHubPullRequest {
+        const pr = new GitHubPullRequest();
+        pr.title = `Travis, do the thing!`;
+        pr.body = `Travis build files for maven and Docker`;
+        return pr;
     }
 }
 
