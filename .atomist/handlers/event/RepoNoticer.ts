@@ -6,6 +6,7 @@ import {
     Execute, HandleEvent,
 } from "@atomist/rug/operations/Handlers";
 import { Match } from "@atomist/rug/tree/PathExpression";
+import * as CommonHandlers from "@atomist/rugs/operations/CommonHandlers";
 import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 import { byExample } from "@atomist/rugs/util/tree/QueryByExample";
 
@@ -13,12 +14,21 @@ import { byExample } from "@atomist/rugs/util/tree/QueryByExample";
 @Secrets("secret://team?path=github_token")
 export class RepoNoticer implements HandleEvent<Repo, Repo> {
     public handle(event: Match<Repo, Repo>): EventPlan {
+        const general = new ChannelAddress("general");
         const plan = new EventPlan();
         const root: Repo = event.root;
         const message = new DirectedMessage(
-            `A new ${root.nodeName()} has appeared: ${root.name}`, new ChannelAddress("general"));
+            `A new ${root.nodeName()} has appeared: ${root.name}`,
+            general);
         plan.add(message);
-        plan.add(addLabelInstruction(root.owner, root.name, "in-progress", ""));
+
+        const match = event.pathExpressionEngine.evaluate(event.root, "/label::Labels()");
+        plan.add(new DirectedMessage(
+            `Repo ${root.name} has ${match.matches.length} labels`,
+            general));
+
+        plan.add(
+            addLabelInstruction(root.owner, root.name, "in-progress", ""));
         return plan;
     }
 }
@@ -49,6 +59,10 @@ export function addLabelInstruction(
             },
         }
         , onSuccess: new DirectedMessage("Added label " + name, new ChannelAddress(repo)),
+        onError: {
+            kind: "respond", name: "GenericErrorHandler", parameters:
+            { msg: "Failed to add label " + name },
+        },
     };
 
 }
