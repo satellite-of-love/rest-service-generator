@@ -29,12 +29,12 @@ export class RepoNoticer implements HandleEvent<Repo, Repo> {
                 {} as GraphNode, // this arg is ignored
                 query);
             plan.add(new DirectedMessage(
-                `Repo ${root.name} has ${match.matches.length} labels based on ${query}`,
+                `Repo ${root.name} has ${match.matches.length} labels based on ${printDammit(query)}`,
                 general));
         } catch (e) {
             plan.add(
                 new DirectedMessage(
-                    `Exception in query ${query}: ${e.getMessage()}`, general));
+                    `Exception in query ${printDammit(query)}: ${e.getMessage()}`, general));
         }
 
         plan.add(
@@ -68,13 +68,46 @@ export function addLabelInstruction(
                 },
             },
         }
-        , onSuccess: new DirectedMessage("Added label " + name, new ChannelAddress(repo)),
-        onError: {
+        , onSuccess: new DirectedMessage(
+            "Added label " + name, new ChannelAddress(repo))
+        , onError: {
             kind: "respond", name: "GenericErrorHandler", parameters:
             { msg: "Failed to add label " + name },
         },
     };
 
+}
+
+function printDammit(thing: any): string {
+
+    function printDammitInternal(a: any): string[] {
+
+        if (a === undefined) {
+            return [`[actually undefined]`];
+        }
+
+        const js = JSON.stringify(a);
+        if (js) {
+            return [`${js}`];
+        }
+
+        const fnOrJava = a.toString();
+
+        if (fnOrJava !== "[object Object]") {
+            return [`toString(): ${fnOrJava}`];
+        }
+
+        // this is probably an inscrutable JVM object.
+
+        let possibleMembers = [];
+        for (const key in a) {
+            possibleMembers = possibleMembers.concat([`${key}: `])
+                .concat(printDammitInternal(a[key]).map((a) => " " + a));
+        }
+        return ["JVM{"].concat(possibleMembers).concat("}");
+    }
+
+    return printDammitInternal(thing).join("\n");
 }
 
 export function queryForLabels(repoName) {

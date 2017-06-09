@@ -20,7 +20,7 @@
     "requires": "[1.0.0-m.4,2.0.0)",
     "extensions": {
       "com.atomist.rug:rug-functions-travis": "[0.18.0,1.0.0)",
-      "com.atomist.rug:rug-function-http": "[0.7.0,1.0.0)"
+      "com.atomist.rug:rug-function-http": "[0.7.6,1.0.0)"
     }
   }
 }
