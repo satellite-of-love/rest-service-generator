@@ -8,6 +8,7 @@ import {
     HandleResponse, MappedParameters, Response, ResponseMessage,
 } from "@atomist/rug/operations/Handlers";
 import { Pattern } from "@atomist/rug/operations/RugOperation";
+import * as CommonHandlers from "@atomist/rugs/operations/CommonHandlers";
 import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 
 /**
@@ -20,18 +21,18 @@ import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 class DeleteRepo implements HandleCommand {
 
     @MappedParameter(MappedParameters.GITHUB_REPOSITORY)
-    repo: string;
+    public repo: string;
 
     @MappedParameter(MappedParameters.GITHUB_REPO_OWNER)
-    owner: string;
+    public owner: string;
 
-    handle(command: HandlerContext): CommandPlan {
+    public handle(command: HandlerContext): CommandPlan {
         const plan = new CommandPlan();
 
         const base = `https://api.github.com/repos/${this.owner}/${this.repo}`;
 
         plan.add(
-            {
+            CommonHandlers.wrap({
                 instruction: {
                     kind: "execute",
                     name: "http",
@@ -47,7 +48,7 @@ class DeleteRepo implements HandleCommand {
                     },
                 },
             },
-        );
+                "I deleted the repository. Feel free to archive this channel"));
         return plan;
     }
 
