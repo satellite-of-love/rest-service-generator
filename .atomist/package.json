@@ -5,7 +5,7 @@
     "camelcase": "github:jessitron/camelcase"
   },
   "name": "@satellite-of-love/rest-service-generator",
-  "version": "1.13.3",
+  "version": "1.13.4",
   "author": "satellite-of-love",
   "description": "Atomist Rugs from satellite-of-love/rest-service-generator",
   "repository": {
