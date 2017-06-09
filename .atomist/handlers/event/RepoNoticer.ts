@@ -9,15 +9,14 @@ import { Match } from "@atomist/rug/tree/PathExpression";
 import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 import { byExample } from "@atomist/rugs/util/tree/QueryByExample";
 
-@EventHandler("RepoNoticer", "does this work?", "/Repo()/labels::Label()")
-@Tags("repo")
+@EventHandler("RepoNoticer", "does this work?", "/Repo()")
 @Secrets("secret://team?path=github_token")
 export class RepoNoticer implements HandleEvent<Repo, Repo> {
     public handle(event: Match<Repo, Repo>): EventPlan {
         const plan = new EventPlan();
         const root: Repo = event.root;
         const message = new DirectedMessage(
-            `A new ${root.nodeName()} has appeared: ${root.name} ${root.labels}`, new ChannelAddress("general"));
+            `A new ${root.nodeName()} has appeared: ${root.name}`, new ChannelAddress("general"));
         plan.add(message);
         plan.add(addLabelInstruction(root.owner, root.name, "in-progress", ""));
         return plan;
