@@ -11,9 +11,8 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
  * generate and spin up a new REST service.
  */
 @CommandHandler("Initiate", "generate and spin up a new REST service")
-@Tags("documentation")
-// @Secrets("secret://team?path=github_token")
-@Intent("initiate creation sequence")
+@Tags("satellite-of-love", "spring")
+@Intent("let's go")
 export class Initiate implements HandleCommand {
 
     @Parameter({
