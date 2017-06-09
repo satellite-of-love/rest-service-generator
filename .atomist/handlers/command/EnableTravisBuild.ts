@@ -191,7 +191,7 @@ class ReceiveDockerUser implements HandleResponse<any> {
                 project: this.repo,
                 parameters: editorParameters,
             },
-            target: this.pr(this.repo, this.path),
+            target: this.pr(this.repo),
             commitMessage: this.commitMessage(),
             onSuccess: CommandPlan.ofMessage(
                 new ResponseMessage("5: Added Travis build files to the repository. Please accept my PR!")),
@@ -204,7 +204,7 @@ class ReceiveDockerUser implements HandleResponse<any> {
         return `Add Travis build configuration`;
     }
 
-    private pr(projectName, path): GitHubPullRequest {
+    private pr(projectName): GitHubPullRequest {
         const pr = new GitHubPullRequest();
         pr.title = `Travis, do the thing!`;
         pr.body = `Travis build files for maven and Docker`;
