@@ -1,5 +1,6 @@
 import { Label } from "@atomist/cortex/stub/Label";
 import { Repo } from "@atomist/cortex/stub/Repo";
+import * as stub from "@atomist/cortex/stub/Types";
 import { EventHandler, Secrets, Tags } from "@atomist/rug/operations/Decorators";
 import {
     ChannelAddress, DirectedMessage, EventPlan, EventRespondable,
@@ -22,15 +23,18 @@ export class RepoNoticer implements HandleEvent<Repo, Repo> {
             general);
         plan.add(message);
 
+        const query = queryForLabels(root.name);
         try {
-            const match = event.pathExpressionEngine.evaluate({} as GraphNode, "/label::Label()");
+            const match = event.pathExpressionEngine.evaluate(
+                {} as GraphNode, // this arg is ignored
+                query);
             plan.add(new DirectedMessage(
-                `Repo ${root.name} has ${match.matches.length} labels`,
+                `Repo ${root.name} has ${match.matches.length} labels based on ${query}`,
                 general));
         } catch (e) {
             plan.add(
                 new DirectedMessage(
-                    `Exception looking for labels: ${e.getMessage()}`, general));
+                    `Exception in query ${query}: ${e.getMessage()}`, general));
         }
 
         plan.add(
@@ -71,6 +75,13 @@ export function addLabelInstruction(
         },
     };
 
+}
+
+export function queryForLabels(repoName) {
+    return byExample(new stub.ChatTeam().addOrgs(
+        new stub.Org().addRepo(
+            new stub.Repo().withName(repoName)
+                .addLabels())));
 }
 
 export const repoNoticer = new RepoNoticer();
