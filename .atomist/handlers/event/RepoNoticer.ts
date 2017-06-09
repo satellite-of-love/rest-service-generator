@@ -5,7 +5,7 @@ import {
     ChannelAddress, DirectedMessage, EventPlan, EventRespondable,
     Execute, HandleEvent,
 } from "@atomist/rug/operations/Handlers";
-import { Match } from "@atomist/rug/tree/PathExpression";
+import { GraphNode, Match } from "@atomist/rug/tree/PathExpression";
 import * as CommonHandlers from "@atomist/rugs/operations/CommonHandlers";
 import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 import { byExample } from "@atomist/rugs/util/tree/QueryByExample";
@@ -23,7 +23,7 @@ export class RepoNoticer implements HandleEvent<Repo, Repo> {
         plan.add(message);
 
         try {
-            const match = event.pathExpressionEngine.evaluate(root, "/label::Label()");
+            const match = event.pathExpressionEngine.evaluate({} as GraphNode, "/label::Label()");
             plan.add(new DirectedMessage(
                 `Repo ${root.name} has ${match.matches.length} labels`,
                 general));
