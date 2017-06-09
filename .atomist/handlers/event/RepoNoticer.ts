@@ -22,10 +22,16 @@ export class RepoNoticer implements HandleEvent<Repo, Repo> {
             general);
         plan.add(message);
 
-        const match = event.pathExpressionEngine.evaluate(event.root, "/label::Labels()");
-        plan.add(new DirectedMessage(
-            `Repo ${root.name} has ${match.matches.length} labels`,
-            general));
+        try {
+            const match = event.pathExpressionEngine.evaluate(root, "/label::Label()");
+            plan.add(new DirectedMessage(
+                `Repo ${root.name} has ${match.matches.length} labels`,
+                general));
+        } catch (e) {
+            plan.add(
+                new DirectedMessage(
+                    `Exception looking for labels: ${e.getMessage()}`, general));
+        }
 
         plan.add(
             addLabelInstruction(root.owner, root.name, "in-progress", ""));
