@@ -38,7 +38,11 @@ const githubRepoParameter = {
 @CommandHandler("EnableTravisBuild", "Turn on a build in Travis, and set up a REST build")
 @Tags("travis", "satellite-of-love")
 @Intent("run EnableTravisBuild")
-@Secrets("github://user_token?scopes=repo,read:org,user:email", "secret://team?path=/docker/token")
+@Secrets("github://user_token?scopes=repo,read:org,user:email",
+    "secret://team?path=/docker/token",
+    "secret://team?path=travisci_github_token",
+    "secret://team?path=maven_token",
+    "secret://team?path=maven_user")
 class EnableTravisBuild implements HandleCommand {
 
     @Parameter(githubRepoParameter)
@@ -92,7 +96,8 @@ function encryptInstruction(repo: string, content: string) {
 }
 
 @ResponseHandler("ReceiveGithubToken", "step 2")
-@Secrets("github://user_token?scopes=repo,read:org,user:email", "secret://team?path=/docker/token")
+@Secrets("github://user_token?scopes=repo,read:org,user:email",
+    "secret://team?path=/docker/token")
 class ReceiveGithubToken implements HandleResponse<any> {
 
     @Parameter(githubRepoParameter)
