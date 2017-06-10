@@ -883,20 +883,3 @@ editor:
   parameters:
     - "component": "minor"
 
----
-kind: "operation"
-client: "com.atomist:rug"
-version: "1.0.1-JESS"
-editor:
-  name: "DefineLibbit"
-  group: "satellite-of-love"
-  artifact: "libbit-rugs"
-  version: "0.2.0"
-  origin:
-    repo: "git@github.com:satellite-of-love/rest-service-generator"
-    branch: "master"
-    sha: "fbc19bb"
-  parameters:
-    - "name": "Something"
-    - "sourceFile": "src/main/java/com/atomist/springrest/addrestendpoint/OneEndpointController.java"
-
