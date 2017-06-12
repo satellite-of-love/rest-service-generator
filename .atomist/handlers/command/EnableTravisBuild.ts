@@ -213,6 +213,7 @@ class ReceiveDockerUser implements HandleResponse<any> {
         const pr = new GitHubPullRequest();
         pr.title = `Travis, do the thing!`;
         pr.body = `Travis build files for maven and Docker`;
+        pr.headBranch = 'travis-build-files';
         return pr;
     }
 }
