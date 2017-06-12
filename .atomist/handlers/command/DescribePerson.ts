@@ -76,7 +76,7 @@ export function describePerson(
                 `/members::ChatId()[@id='${this.requester}']`,
             );
             if (!match || !match.matches || match.matches.length == 0) {
-                throw new Error(`I can't even retrieve the ChatId for ${slackUserId}`);
+                throw new Error(`I can't even retrieve the ChatId for ${slackUserId} from ${chatTeam.nodeName()}`);
             } else {
                 const match = pxe.evaluate<ChatTeam, ChatId>(
                     chatTeam as ChatTeam,
