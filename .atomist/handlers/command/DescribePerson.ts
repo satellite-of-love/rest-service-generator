@@ -56,18 +56,47 @@ export function describePerson(
     chatTeam: GraphNode,
     slackUserId: string): DescribedPerson {
     try {
-        const chatId = pxe.scalar<ChatTeam, ChatId>(
+        const match = pxe.evaluate<ChatTeam, ChatId>(
             chatTeam as ChatTeam,
-            // TODO: is this right?
             `/members::ChatId()[@id='${this.requester}'][/person::Person()[/gitHubId::GitHubId()]?]`,
         );
-        const slackUsername = chatId.screenName;
-        const name = constructName(chatId.person);
-        const gitHubLogin = chatId.person.gitHubId ? chatId.person.gitHubId.login : null;
 
-        return {
-            slackUserId, slackUsername, name, gitHubLogin,
-        };
+        if (match.matches.length >= 1) {
+            const chatId = match.matches[0];
+            const slackUsername = chatId.screenName;
+            const name = constructName(chatId.person);
+            const gitHubLogin = chatId.person.gitHubId ? chatId.person.gitHubId.login : null;
+
+            return {
+                slackUserId, slackUsername, name, gitHubLogin,
+            };
+        } else {
+            const match = pxe.evaluate<ChatTeam, ChatId>(
+                chatTeam as ChatTeam,
+                `/members::ChatId()[@id='${this.requester}']`,
+            );
+            if (!match || !match.matches || match.matches.length == 0) {
+                throw new Error(`I can't even retrieve the ChatId for ${slackUserId}`);
+            } else {
+                const match = pxe.evaluate<ChatTeam, ChatId>(
+                    chatTeam as ChatTeam,
+                    `/members::ChatId()[@id='${this.requester}'][/person::Person()]`,
+                );
+                if (!match || !match.matches || match.matches.length == 0) {
+                    throw new Error(`I can't find a Person for ${slackUserId}`);
+                } else {
+                    const chatId = match.matches[0];
+                    const slackUsername = chatId.screenName;
+                    const name = constructName(chatId.person)
+                    console.log("Guess that optional test wasn't so optional");
+
+                    return {
+                        slackUserId, slackUsername, name,
+                    };
+                }
+            }
+        }
+
 
     } catch (e) {
         console.log(`Failure: Unable to retrieve personal info for Slack user ${slackUserId}: ${printException(e)}`);
