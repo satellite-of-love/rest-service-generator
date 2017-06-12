@@ -58,7 +58,7 @@ export function describePerson(
     try {
         const match = pxe.evaluate<ChatTeam, ChatId>(
             chatTeam as ChatTeam,
-            `/ChatTeam()/members::ChatId()[@id='${slackUserId}'][/person::Person()[/gitHubId::GitHubId()]?]`,
+            `/members::ChatId()[@id='${slackUserId}'][/person::Person()[/gitHubId::GitHubId()]?]`,
         );
 
         if (match.matches.length >= 1) {
@@ -73,14 +73,14 @@ export function describePerson(
         } else {
             const match = pxe.evaluate<ChatTeam, ChatId>(
                 chatTeam as ChatTeam,
-                `/ChatTeam()/members::ChatId()[@id='${slackUserId}']`,
+                `/members::ChatId()[@id='${slackUserId}']`,
             );
             if (!match || !match.matches || match.matches.length == 0) {
                 throw new Error(`I can't even retrieve the ChatId for ${slackUserId} from ${chatTeam.nodeName()}`);
             } else {
                 const match = pxe.evaluate<ChatTeam, ChatId>(
                     chatTeam as ChatTeam,
-                    `/ChatTeam()/members::ChatId()[@id='${slackUserId}'][/person::Person()]`,
+                    `/members::ChatId()[@id='${slackUserId}'][/person::Person()]`,
                 );
                 if (!match || !match.matches || match.matches.length == 0) {
                     throw new Error(`I can't find a Person for ${slackUserId}`);
