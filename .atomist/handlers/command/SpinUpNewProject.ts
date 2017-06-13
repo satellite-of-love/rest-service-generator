@@ -65,7 +65,8 @@ export class SpinUpNewProject implements HandleCommand {
                 commitMessage: this.commitMessage(context, this.user, this.repo),
             },
             onSuccess: CommandPlan.ofMessage(
-                new ResponseMessage("I made a PR to atomist-k8-specs. Please merge this after the build is set up")),
+                new ResponseMessage(
+                    `I made a PR to <https://github.com/satellite-of-love/atomist-k8-specs|atomist-k8-specs>. Merge this to get deployments`)),
             onError: CommandPlan.ofMessage(
                 new ResponseMessage("Darn, the k8 edit didn't work")),
         };
