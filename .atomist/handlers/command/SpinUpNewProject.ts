@@ -7,10 +7,14 @@ import {
     HandleResponse, MappedParameters, Response,
     ResponseMessage,
 } from "@atomist/rug/operations/Handlers";
-import { Pattern } from "@atomist/rug/operations/RugOperation";
+import {Pattern} from "@atomist/rug/operations/RugOperation";
 import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
 import * as DescribePerson from "./DescribePerson";
-import { EnableTravisBuild } from "./EnableTravisBuild";
+import {EnableTravisBuild} from "./EnableTravisBuild";
+
+import * as stub from "@atomist/cortex/stub/Types";
+
+import {byExample} from "@atomist/rugs/util/tree/QueryByExample";
 
 const githubRepoParameter = {
     displayName: "github repository",
@@ -43,8 +47,9 @@ export class SpinUpNewProject implements HandleCommand {
         maxLength: 100,
         displayName: "path from survey.atomist.com/ to this service",
         description: "url portion",
+        required: false
     })
-    public path: string;
+    public path: string = "-same-as-project-name-";
 
     public handle(context: HandlerContext): CommandPlan {
 
@@ -52,11 +57,15 @@ export class SpinUpNewProject implements HandleCommand {
             // no trailing slash
             this.path = this.path.replace(/\/$/, "");
         }
+        if (this.path === "-same-as-projet-name-") {
+            this.path = this.repo;
+        }
+
 
         const addDeploymentSpec = {
             instruction: {
                 kind: "edit", name: "AddDeploymentSpec",
-                project: "atomist-k8-specs#satellite-of-love",
+                project: "atomist-k8-specs",
                 parameters: {
                     service: this.repo,
                     path: this.path,
@@ -78,11 +87,12 @@ export class SpinUpNewProject implements HandleCommand {
         plan.add(
             new ResponseMessage(
                 `Oh goodie, I am going to make ${this.repo} have a Travis build and a deployment spec`));
-        plan.add(addDeploymentSpec);
+            plan.add(addDeploymentSpec);
 
         return plan;
 
     }
+
 
     private commitMessage(context: HandlerContext, user: string, projectName: string): string {
         const person = DescribePerson.describePerson(
@@ -98,6 +108,7 @@ Commit by atomist, triggered by ${DescribePerson.identifyOnGitHub(person)}`;
         pr.title = `Deploy new service ${projectName} at /${path}`;
         pr.body = `Once you merge this, ${projectName} will deploy at its next successful Travis build`;
         pr.headBranch = `spin-up-${projectName}`;
+        pr.baseBranch = `satellite-of-love`;
         return pr;
     }
 }

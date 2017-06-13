@@ -1,15 +1,16 @@
-import { Label } from "@atomist/cortex/stub/Label";
-import { Repo } from "@atomist/cortex/stub/Repo";
+import {Repo} from "@atomist/cortex/stub/Repo";
 import * as stub from "@atomist/cortex/stub/Types";
-import { EventHandler, Secrets, Tags } from "@atomist/rug/operations/Decorators";
+import {EventHandler, Secrets} from "@atomist/rug/operations/Decorators";
 import {
-    ChannelAddress, DirectedMessage, EventPlan, EventRespondable,
-    Execute, HandleEvent,
+    ChannelAddress,
+    DirectedMessage,
+    EventPlan,
+    EventRespondable,
+    Execute,
+    HandleEvent
 } from "@atomist/rug/operations/Handlers";
-import { GraphNode, Match } from "@atomist/rug/tree/PathExpression";
-import * as CommonHandlers from "@atomist/rugs/operations/CommonHandlers";
-import * as PlanUtils from "@atomist/rugs/operations/PlanUtils";
-import { byExample } from "@atomist/rugs/util/tree/QueryByExample";
+import {GraphNode, Match} from "@atomist/rug/tree/PathExpression";
+import {byExample} from "@atomist/rugs/util/tree/QueryByExample";
 
 @EventHandler("RepoNoticer", "does this work?", "/Repo()")
 @Secrets("secret://team?path=github_token")
@@ -28,9 +29,11 @@ export class RepoNoticer implements HandleEvent<Repo, Repo> {
             const match = event.pathExpressionEngine.evaluate(
                 {} as GraphNode, // this arg is ignored
                 query);
-            plan.add(new DirectedMessage(
-                `Repo ${root.name} has ${match.matches.length} labels based on ${printDammit(query)}`,
-                general));
+            if (match.matches.length > 0) {
+                plan.add(new DirectedMessage(
+                    `Repo ${root.name} has ${match.matches.length} labels based on ${printDammit(query)}`,
+                    general));
+            }
         } catch (e) {
             plan.add(
                 new DirectedMessage(
