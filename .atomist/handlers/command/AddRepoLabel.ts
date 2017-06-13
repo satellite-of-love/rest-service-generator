@@ -48,7 +48,8 @@ class AddRepoLabel implements HandleCommand {
                             },
                         }
                     }
-                }
+                },
+                onSuccess: new ResponseMessage(`Defined label ${this.name}`),
             }
         );
         return plan;
