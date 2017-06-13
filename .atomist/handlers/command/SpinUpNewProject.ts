@@ -53,13 +53,10 @@ export class SpinUpNewProject implements HandleCommand {
 
     public handle(context: HandlerContext): CommandPlan {
 
-        if (this.path.match(/\/$/)) {
-            // no trailing slash
-            this.path = this.path.replace(/\/$/, "");
-        }
-        if (this.path === "-same-as-projet-name-") {
-            this.path = this.repo;
-        }
+        const path = this.path.match(/\/$/) ?
+            this.path.replace(/\/$/, "") :
+            (this.path === "-same-as-project-name-" ?
+                this.repo : this.path)
 
 
         const addDeploymentSpec = {
@@ -68,9 +65,9 @@ export class SpinUpNewProject implements HandleCommand {
                 project: "atomist-k8-specs",
                 parameters: {
                     service: this.repo,
-                    path: this.path,
+                    path: path,
                 },
-                target: this.pr(this.repo, this.path),
+                target: this.pr(this.repo, path),
                 commitMessage: this.commitMessage(context, this.user, this.repo),
             },
             onSuccess: CommandPlan.ofMessage(
@@ -87,7 +84,7 @@ export class SpinUpNewProject implements HandleCommand {
         plan.add(
             new ResponseMessage(
                 `Oh goodie, I am going to make ${this.repo} have a Travis build and a deployment spec`));
-            plan.add(addDeploymentSpec);
+        plan.add(addDeploymentSpec);
 
         return plan;
 
