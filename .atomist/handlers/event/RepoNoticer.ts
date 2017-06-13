@@ -12,7 +12,7 @@ import {
 import {GraphNode, Match} from "@atomist/rug/tree/PathExpression";
 import {byExample} from "@atomist/rugs/util/tree/QueryByExample";
 
-@EventHandler("RepoNoticer", "does this work?", "/Commit()/Repo()/") // TODO: what does this do
+@EventHandler("RepoNoticer", "does this work?", "/Commit()/Repo()") // TODO: what does this do
 @Secrets("secret://team?path=github_token")
 export class RepoNoticer implements HandleEvent<Commit, Repo> {
     public handle(event: Match<Commit, Repo>): EventPlan {
