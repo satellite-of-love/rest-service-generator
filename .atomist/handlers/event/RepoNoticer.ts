@@ -12,13 +12,13 @@ import {
 import {GraphNode, Match} from "@atomist/rug/tree/PathExpression";
 import {byExample} from "@atomist/rugs/util/tree/QueryByExample";
 
-@EventHandler("RepoNoticer", "does this work?", "/Commit()/Repo()") // TODO: what does this do
+@EventHandler("RepoNoticer", "does this work?", "/Repo()")
 @Secrets("secret://team?path=github_token")
-export class RepoNoticer implements HandleEvent<Commit, Repo> {
-    public handle(event: Match<Commit, Repo>): EventPlan {
+export class RepoNoticer implements HandleEvent<Repo, Repo> {
+    public handle(event: Match<Repo, Repo>): EventPlan {
         const general = new ChannelAddress("general");
         const plan = new EventPlan();
-        const root: Repo = event.root.repo;
+        const root: Repo = event.root;
         const message = new DirectedMessage(
             `A new ${root.nodeName()} has appeared: ${root.name}`,
             general);
