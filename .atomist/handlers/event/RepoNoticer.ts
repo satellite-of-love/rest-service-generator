@@ -61,8 +61,8 @@ export function addLabelInstruction(
                 method: "post",
                 config: {
                     body: JSON.stringify({
-                        name: this.name,
-                        color: this.color,
+                        name: name,
+                        color: color,
                     }),
                     headers: {
                         "Content-Type": "application/json",
