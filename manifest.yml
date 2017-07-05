@@ -1,0 +1,5 @@
+---
+applications:
+- name: rest-service-generator
+  memory: 512M
+  path: target/runme.jar

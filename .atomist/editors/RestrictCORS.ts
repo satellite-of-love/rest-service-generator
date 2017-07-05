@@ -19,7 +19,8 @@ export class RestrictCORS implements EditProject {
 
         pxe.with<File>(project, "/src/main//File()", f => {
             if (f.name.match(/.java$/)) {
-                f.replace("CrossOrigin()", `CrossOrigin(origins = "http://localhost:8000")`);
+                f.replace("CrossOrigin()",
+                    `CrossOrigin(origins = "http://localhost:8000")`);
             }
         });
 

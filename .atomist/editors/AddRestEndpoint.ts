@@ -52,11 +52,13 @@ export class AddRestEndpoint implements EditProject {
         let requestParam = this.fieldName;
         let requestParamType = this.fieldType
 
-        this.addPojo(project, sourceLocation, returnedClass, packageName, this.fieldName, this.fieldType);
-        this.addController(project, sourceLocation, returnedClass, packageName, path, requestParam, requestParamType, lowerReturnedClass);
-        this.addIntegrationTest(project, returnedClass, packageName, testLocation, requestParam, path, lowerReturnedClass, this.fieldName, this.fieldType, applicationClass);
+        this.addPojo(project, sourceLocation, returnedClass,
+            packageName, this.fieldName, this.fieldType);
+        this.addController(project, sourceLocation, returnedClass,
+            packageName, path, requestParam, requestParamType, lowerReturnedClass);
+        this.addIntegrationTest(project, returnedClass, packageName, testLocation,
+            requestParam, path, lowerReturnedClass, this.fieldName, this.fieldType, applicationClass);
 
-        //TODO: these aren't working, directories need cleanup. (better would be to remove empties in changePackage)
         project.deleteDirectory("src/main/java/com/atomist/springrest");
         project.deleteDirectory("src/test/java/com/atomist/springrest");
     }

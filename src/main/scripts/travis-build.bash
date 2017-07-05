@@ -39,10 +39,15 @@ function main() {
         fi
     fi
 
-    if ! $mvn install -Dmaven.javadoc.skip=true; then
-        err "maven install failed"
+    if ! $mvn package -Dmaven.javadoc.skip=true; then
+        err "maven package failed"
         return 1
     fi
+
+    # look. I need to specify the name of the jar in the manifest.yml for Cloud Foundry,
+    # and the name of the jar is different for every version.
+    # So I'm just gonna make it the same.
+    mv target/*.jar target/runme.jar
 
     if [[ $TRAVIS_PULL_REQUEST != false ]]; then
         msg "not publishing or tagging pull request"
@@ -70,13 +75,6 @@ function main() {
             return 1
         fi
 
-        # Build the Docker image only on releases
-        # if [[ $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            if ! $mvn docker:build -DpushImageTag; then
-                err "maven docker build or push failed"
-                return 1
-            fi
-        #fi
     fi
 }
 

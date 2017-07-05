@@ -97,7 +97,7 @@ function encryptInstruction(repo: string, content: string) {
 
 @ResponseHandler("ReceiveGithubToken", "step 2")
 @Secrets("github://user_token?scopes=repo,read:org,user:email",
-    "secret://team?path=/docker/token")
+    "secret://team?path=/pivotal/password")
 class ReceiveGithubToken implements HandleResponse<any> {
 
     @Parameter(githubRepoParameter)
@@ -105,24 +105,24 @@ class ReceiveGithubToken implements HandleResponse<any> {
 
     public handle(response: Response<string>): CommandPlan {
         const plan = CommandPlan.ofMessage(
-            new ResponseMessage("2: Encrypted Github Token for travis"));
-        const encryptDockerToken = encryptInstruction(this.repo,
-            `ATOMIST_REPO_TOKEN=#{secret://team?path=/docker/token}`);
-        encryptDockerToken.onSuccess = ({
-            kind: "respond", name: "ReceiveDockerToken",
+            new ResponseMessage("2: Encrypted Pivotal password for travis"));
+        const encryptPivotalPassword = encryptInstruction(this.repo,
+            `#{secret://team?path=/pivotal/password}`);
+        encryptPivotalPassword.onSuccess = ({
+            kind: "respond", name: "ReceivePivotalPassword",
             parameters: {
                 repo: this.repo,
                 encryptedGithubToken: response.body,
             },
         });
-        plan.add(encryptDockerToken);
+        plan.add(encryptPivotalPassword);
         return plan;
     }
 }
 
-@ResponseHandler("ReceiveDockerToken", "step 3")
+@ResponseHandler("ReceivePivotalPassword", "step 3")
 @Secrets("github://user_token?scopes=repo,read:org,user:email")
-class ReceiveDockerToken implements HandleResponse<any> {
+class ReceivePivotalPassword implements HandleResponse<any> {
     @Parameter(githubRepoParameter)
     public repo: string;
 
@@ -137,58 +137,13 @@ class ReceiveDockerToken implements HandleResponse<any> {
     public encryptedGithubToken: string;
 
     public handle(response: Response<string>): CommandPlan {
-        const encryptedDockerToken: string = response.body;
-        const plan = CommandPlan.ofMessage(new ResponseMessage(`3: Encrypted Docker registry token for travis`));
-        // this next one is not exactly secret but we don't want it scrapeable from the .travis.yml
-        const encryptDockerUser = encryptInstruction(this.repo, `ATOMIST_REPO_USER=travis-docker`);
-        encryptDockerUser.onSuccess = ({
-            kind: "respond", name: "ReceiveDockerUser",
-            parameters: {
-                repo: this.repo,
-                encryptedGithubToken: this.encryptedGithubToken,
-                encryptedDockerToken,
-            },
-        });
-        plan.add(encryptDockerUser);
-        return plan;
-    }
-}
-
-@ResponseHandler("ReceiveDockerUser", "step 4")
-@Secrets("github://user_token?scopes=repo,read:org,user:email")
-class ReceiveDockerUser implements HandleResponse<any> {
-    @Parameter(githubRepoParameter)
-    public repo: string;
-
-    @Parameter({
-        displayName: "don't display this",
-        description: "an encrypted github token to stick in a Travis file",
-        pattern: Pattern.any,
-        validInput: "long string of nonsense",
-        minLength: 1,
-        maxLength: 1000,
-    })
-    public encryptedGithubToken: string;
-
-    @Parameter({
-        displayName: "don't display this",
-        description: "an encrypted docker token to stick in a Travis file",
-        pattern: Pattern.any,
-        validInput: "long string of nonsense",
-        minLength: 1,
-        maxLength: 1000,
-    })
-    public encryptedDockerToken: string;
-
-    public handle(response: Response<string>): CommandPlan {
-        const encryptedDockerUser: string = response.body;
-        const plan = CommandPlan.ofMessage(new ResponseMessage("4: Encrypted Docker token for Travis"));
+        const encryptedPivotalPassword: string = response.body;
+        const plan = CommandPlan.ofMessage(new ResponseMessage("3: Encrypted Pivotal password for Travis"));
         const editorName = "PrepareTravisBuildFiles";
         const editorParameters = {
             project: this.repo,
             encryptedGithubToken: this.encryptedGithubToken,
-            encryptedDockerRegistryToken: this.encryptedDockerToken,
-            encryptedDockerRegistryUser: encryptedDockerUser,
+            encryptedPivotalPassword,
         };
         const prepareBuildFiles = {
             instruction: {
@@ -199,7 +154,7 @@ class ReceiveDockerUser implements HandleResponse<any> {
             target: this.pr(this.repo),
             commitMessage: this.commitMessage(),
             onSuccess: CommandPlan.ofMessage(
-                new ResponseMessage("5: Added Travis build files to the repository. Please accept my PR!")),
+                new ResponseMessage("4: Added Travis build files to the repository. Please accept my PR!")),
         };
         plan.add(prepareBuildFiles);
         return plan;
@@ -212,8 +167,8 @@ class ReceiveDockerUser implements HandleResponse<any> {
     private pr(projectName): GitHubPullRequest {
         const pr = new GitHubPullRequest();
         pr.title = `Travis, do the thing!`;
-        pr.body = `Travis build files for maven and Docker`;
-        pr.headBranch = 'travis-build-files';
+        pr.body = `Travis build files for maven and cloud foundry`;
+        pr.headBranch = "travis-build-files";
         return pr;
     }
 }
@@ -221,5 +176,5 @@ class ReceiveDockerUser implements HandleResponse<any> {
 export { EnableTravisBuild };
 export const enableTravisBuild = new EnableTravisBuild();
 export const receiveGithubToken = new ReceiveGithubToken();
-export const receiveDockerToken = new ReceiveDockerToken();
-export const receiveDockerUser = new ReceiveDockerUser();
+export const receiveDockerToken = new ReceivePivotalPassword();
+
