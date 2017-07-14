@@ -883,3 +883,17 @@ editor:
   parameters:
     - "component": "minor"
 
+---
+kind: "operation"
+client: "com.atomist:rug"
+version: "1.0.1-JESS"
+editor:
+  name: "UpdateRug"
+  group: "atomist"
+  artifact: "rug-rugs"
+  version: "0.32.0-20170623025305"
+  origin:
+    repo: "git@github.com:satellite-of-love/rest-service-generator"
+    branch: "master"
+    sha: "8086817"
+

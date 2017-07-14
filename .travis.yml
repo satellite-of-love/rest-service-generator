@@ -9,8 +9,7 @@ branches:
   except:
   - /^v?\d+\.\d+\.\d+/
 install: true
-script: docker login -u $ATOMIST_REPO_USER -p $ATOMIST_REPO_TOKEN $ATOMIST_DOCKER_REGISTRY
-  && bash src/main/scripts/travis-build.bash
+script: bash src/main/scripts/travis-build.bash
 env:
   global:
   - secure: wsr6DYdrUaO+9pibgE32Se/9SIynSXizQUtjnQJadaPoW0vTGKwz4vpddo9FxuFdB1kwhbaQ7W3aoWEdX+mpP8XcpA/Jqu6sfb+2FxDcDFcDTmTwF5HYI0fXuOF8xB67FVMVO0jHOZpzX1rwBE226Omt8SDSk761raGoKD50lF9AzqXKl4hSe3jOZAi5UcizZLJHEkkc7ByEJoed//OK86rfzADSmRVajAXOaB5iFgjtldApXjpxOmn9FaNMZ27K9SlAJTXihFnFUmSs9ke+92s0H9k0ZkuFUgSrL4474IM8pBokupM2qzlSU2mPzhP/WrePCQfoyEnkywHdXHFbASTGi7zFBQtpwUXdoPW7HHisdVNJzgzWbTihnYHnQq+/aWkz3+IXt5hMX1AZfn8DXoN3qx+iPySmf8RaQA+6drzUr0byKRmLQZ9AW7aAekaI3lnVoP6hpLQv34pha9t1yRPH4G1qvxwz81NAg65CUoE4gRmmF/MMHGxSC6INjLpejcKGVokRJG8C2ZTkZx8PcJ1HPfyKWwkvbp+DFQ1mm6htUhXB9WrszAQoDmL/jW1WCZ9X3n44P53/LPDXs97oaWlv3g3eJ2NZQv8+qlcqP5bvTaWKGTrqDh4HNzWhES1rRTYM6r4q8HNf02ZZHW/jb7WmYh2EPp9HmxIV9TqkrPQ=
@@ -33,6 +32,6 @@ deploy:
   organization: atomist
   space: jessitron
   on:
-    branch: release
+    branch: master
   password:
     secure: PIVOTAL_PASSWORD_HERE

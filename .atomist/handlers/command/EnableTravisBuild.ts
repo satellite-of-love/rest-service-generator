@@ -39,10 +39,9 @@ const githubRepoParameter = {
 @Tags("travis", "satellite-of-love")
 @Intent("run EnableTravisBuild")
 @Secrets("github://user_token?scopes=repo,read:org,user:email",
-    "secret://team?path=/docker/token",
     "secret://team?path=travisci_github_token",
-    "secret://team?path=maven_token",
-    "secret://team?path=maven_user")
+    "secret://team?path=/pivotal/password",
+)
 class EnableTravisBuild implements HandleCommand {
 
     @Parameter(githubRepoParameter)
