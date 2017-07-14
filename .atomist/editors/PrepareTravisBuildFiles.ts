@@ -52,9 +52,10 @@ export class PrepareTravisBuildFiles implements EditProject {
         travisFile.setContent(newContent);
 
         // build script
-        if (!project.fileExists("src/main/scripts/travis-build.bash")) {
-            project.copyEditorBackingFileOrFail("src/main/scripts/travis-build.bash");
+        if (project.fileExists("src/main/scripts/travis-build.bash")) {
+            project.deleteFile("src/main/scripts/travis-build.bash");
         }
+        project.copyEditorBackingFileOrFail("src/main/scripts/travis-build.bash");
 
         // copy manifest.yml, populate application name
         if (!project.fileExists("manifest.yml")) {
