@@ -36,9 +36,10 @@ export class PrepareTravisBuildFiles implements EditProject {
         console.log(`Enabling build on ${project.name}`);
 
         // .travis.yml
-        if (!project.fileExists(".travis.yml")) {
-            project.copyEditorBackingFileOrFail(".travis.yml");
+        if (project.fileExists(".travis.yml")) {
+            project.deleteFile(".travis.yml");
         }
+        project.copyEditorBackingFileOrFail(".travis.yml");
 
         // replace all secrets
         const travisFile = project.findFile(".travis.yml");
